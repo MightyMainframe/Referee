@@ -17,7 +17,12 @@ async def on_message(message):
         if command == "test":
             await client.send_message(message.channel, "Yup things seem to working... for now")
 #       End Command
-
+        elif command == "join":
+            await client.send_message(message.channel, "{user} You have been added".format(user=message.author.mention))
+            for role in message.server.roles:
+                if role.name == "Bot-tester":
+                    roleToAssign = role
+            await client.add_roles(message.author, roleToAssign)
 
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
