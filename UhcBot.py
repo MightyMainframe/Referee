@@ -60,9 +60,17 @@ async def on_message(message):
         elif command == "team":
             teamName = args[0]
             if teamName in teams:
-                await client.send_message(message.channel, "{user} joined team {team}".format(user=message.author.mention, team=teamName))
-                role = discord.utils.get(message.server.roles, id=teams[teamName])
-                await client.add_roles(message.author, role)
+                allRoles = []
+                for team in teams:
+                    allRoles.append(team)
+                allRolesSet = set(allRoles)
+                userRolesSet = set(message.author.roles)
+                if allRolesSet.intersection(userRolesSet):
+                    await client.send_message(message.channel, "{user} You're already in a team! You can't join two!".format(user=message.author.mention))
+                else:
+                    await client.send_message(message.channel, "{user} joined team {team}".format(user=message.author.mention, team=teamName))
+                    role = discord.utils.get(message.server.roles, id=teams[teamName])
+                    await client.add_roles(message.author, role)
             else:
                 await client.send_message(message.channel, "This team is non existing! Please contact a Moderator or Administrator if you think this team should exist.")
 
