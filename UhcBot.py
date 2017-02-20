@@ -19,7 +19,7 @@ async def on_message(message):
             await client.send_message(message.channel, "Yup things seem to working... for now")
 #       End Command
         elif command == "join":
-            await client.send_message(message.channel, "{user} You have been added".format(user=message.author.mention))
+            await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
             role = discord.utils.get(message.server.roles, id=config.roleToAssign)
             await client.add_roles(message.author, role)
             await client.delete_message(message)
@@ -35,4 +35,4 @@ async def on_message(message):
 
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
-client.run('TOKEN')
+client.run('Mjc1Nzk0ODQzMzI5MTAxODI0.C3GiFA.eusb_FZ8n4mZfU72qcik_D9a5LI')
