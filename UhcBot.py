@@ -22,6 +22,7 @@ async def on_message(message):
             await client.send_message(message.channel, "{user} You have been added".format(user=message.author.mention))
             role = discord.utils.get(message.server.roles, id=config.roleToAssign)
             await client.add_roles(message.author, role)
+            await client.delete_message(message)
         elif command == "setRole":
             _modRole = discord.utils.get(message.server.roles, name=config.modRole)
             _adminRole = discord.utils.get(message.server.roles, name=config.adminRole)
