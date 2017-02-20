@@ -5,13 +5,15 @@
 #          possible, (it doesn't need to be as formatted as mine)         #
 #-------------------------------------------------------------------------#
 import discord
-import config
 import json
 
 client = discord.Client()
 
 with open('teams.json') as f:
-    data = json.load(f)
+    teams = json.load(f)
+
+with open('config.json') as f:
+    configjson = json.load(f)
 
 @client.event
 async def on_message(message):
@@ -24,33 +26,32 @@ async def on_message(message):
 #       !join command
         elif command == "join":
             await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
-            role = discord.utils.get(message.server.roles, id=config.roleToAssign)
+            role = discord.utils.get(message.server.roles, id=configjson["RoleToAssign"])
             await client.add_roles(message.author, role)
-            await client.delete_message(message)
 #       !setRole command
         elif command == "setRole":
-            _modRole = discord.utils.get(message.server.roles, name=config.modRole)
-            _adminRole = discord.utils.get(message.server.roles, name=config.adminRole)
+            _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
+            _adminRole = discord.utils.get(message.server.roles, name=configjson["adminRole"])
             if _modRole in message.author.roles or _adminRole in message.author.roles:
-                print(args)
                 completeID = args[0]
                 _roleToAssign = completeID.strip('<>&@')
-                config.roleToAssign = _roleToAssign
-                print(config.roleToAssign)
+                role_dict = {"RoleToAssign": _roleToAssign}
+                configjson.update(role_dict)
+                with open('config.json', 'w') as f:
+                    json.dump(configjson, f)
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !setTeam command, takes 2 args, teamName and a mention to the teamRole
         elif command == "setTeam":
-            _modRole = discord.utils.get(message.server.roles, name=config.modRole)
-            _adminRole = discord.utils.get(message.server.roles, name=config.adminRole)
+            _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
+            _adminRole = discord.utils.get(message.server.roles, name=configjson["adminRole"])
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 teamName = args[0]
                 teamID = args[1].strip('<>&@')
                 team_dict = {teamName: teamID}
-                #data = json.load(f)
-                data.update(team_dict)
+                teams.update(team_dict)
                 with open('teams.json', 'w') as f:
-                    json.dump(data, f)
+                    json.dump(teams, f)
                 teamRole = discord.utils.get(message.server.roles, id=teamID)
                 await client.send_message(message.channel, teamRole.mention)
             else:
@@ -58,10 +59,9 @@ async def on_message(message):
 #       !team command to join team, takes 1 arg, teamName
         elif command == "team":
             teamName = args[0]
-            #data = json.load(f)
-            if teamName in data:
+            if teamName in teams:
                 await client.send_message(message.channel, "{user} joined team {team}".format(user=message.author.mention, team=teamName))
-                role = discord.utils.get(message.server.roles, id=data[teamName])
+                role = discord.utils.get(message.server.roles, id=teams[teamName])
                 await client.add_roles(message.author, role)
             else:
                 await client.send_message(message.channel, "This team is non existing! Please contact a Moderator or Administrator if you think this team should exist.")
