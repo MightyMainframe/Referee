@@ -32,7 +32,12 @@ async def on_message(message):
                 _roleToAssign = completeID.strip('<>&@')
                 config.roleToAssign = _roleToAssign
                 print(config.roleToAssign)
+        elif command == "setTeam":
+            teamName = args[0]
+            teamID = args[1].strip('<>&@')
+            teamRole = discord.utils.get(message.server.roles, id=teamID)
+            await client.send_message(message.channel, teamRole.mention)
 
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
-client.run('Mjc1Nzk0ODQzMzI5MTAxODI0.C3GiFA.eusb_FZ8n4mZfU72qcik_D9a5LI')
+client.run('TOKEN')
