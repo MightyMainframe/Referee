@@ -8,4 +8,3 @@
 roleToAssign = "277862726594854923"
 modRole = "Moderator"
 adminRole = "Admin"
-teams = {'team': 'id'}

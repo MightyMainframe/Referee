@@ -6,8 +6,12 @@
 #-------------------------------------------------------------------------#
 import discord
 import config
+import json
 
 client = discord.Client()
+
+with open('teams.json') as f:
+    data = json.load(f)
 
 @client.event
 async def on_message(message):
@@ -42,16 +46,22 @@ async def on_message(message):
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 teamName = args[0]
                 teamID = args[1].strip('<>&@')
-                config.teams[teamName] = teamID
+                team_dict = {teamName: teamID}
+                #data = json.load(f)
+                data.update(team_dict)
+                with open('teams.json', 'w') as f:
+                    json.dump(data, f)
                 teamRole = discord.utils.get(message.server.roles, id=teamID)
                 await client.send_message(message.channel, teamRole.mention)
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
+#       !team command to join team, takes 1 arg, teamName
         elif command == "team":
             teamName = args[0]
-            if teamName in config.teams:
+            #data = json.load(f)
+            if teamName in data:
                 await client.send_message(message.channel, "{user} joined team {team}".format(user=message.author.mention, team=teamName))
-                role = discord.utils.get(message.server.roles, id=config.teams[teamName])
+                role = discord.utils.get(message.server.roles, id=data[teamName])
                 await client.add_roles(message.author, role)
             else:
                 await client.send_message(message.channel, "This team is non existing! Please contact a Moderator or Administrator if you think this team should exist.")
