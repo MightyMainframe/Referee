@@ -5,6 +5,7 @@
 #          possible, (it doesn't need to be as formatted as mine)         #
 #-------------------------------------------------------------------------#
 import discord
+import config
 
 client = discord.Client()
 
@@ -19,10 +20,17 @@ async def on_message(message):
 #       End Command
         elif command == "join":
             await client.send_message(message.channel, "{user} You have been added".format(user=message.author.mention))
-            for role in message.server.roles:
-                if role.name == "Bot-tester":
-                    roleToAssign = role
-            await client.add_roles(message.author, roleToAssign)
+            role = discord.utils.get(message.server.roles, id=config.roleToAssign)
+            await client.add_roles(message.author, role)
+        elif command == "setRole":
+            _modRole = discord.utils.get(message.server.roles, name=config.modRole)
+            _adminRole = discord.utils.get(message.server.roles, name=config.adminRole)
+            if _modRole in message.author.roles or _adminRole in message.author.roles:
+                print(args)
+                completeID = args[0]
+                _roleToAssign = completeID.strip('<>&@')
+                config.roleToAssign = _roleToAssign
+                print(config.roleToAssign)
 
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
