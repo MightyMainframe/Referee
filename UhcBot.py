@@ -32,12 +32,18 @@ async def on_message(message):
                 _roleToAssign = completeID.strip('<>&@')
                 config.roleToAssign = _roleToAssign
                 print(config.roleToAssign)
+            else:
+                await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
         elif command == "setTeam":
-            teamName = args[0]
-            teamID = args[1].strip('<>&@')
-            teamRole = discord.utils.get(message.server.roles, id=teamID)
-            await client.send_message(message.channel, teamRole.mention)
-
+            _modRole = discord.utils.get(message.server.roles, name=config.modRole)
+            _adminRole = discord.utils.get(message.server.roles, name=config.adminRole)
+            if _modRole in message.author.roles or _adminRole in message.author.roles:
+                teamName = args[0]
+                teamID = args[1].strip('<>&@')
+                teamRole = discord.utils.get(message.server.roles, id=teamID)
+                await client.send_message(message.channel, teamRole.mention)
+            else:
+                await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
 client.run('TOKEN')
