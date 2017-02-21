@@ -84,4 +84,4 @@ async def on_message(message):
 
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
-client.run('Mjc1Nzk0ODQzMzI5MTAxODI0.C3GiFA.eusb_FZ8n4mZfU72qcik_D9a5LI')
+client.run('TOKEN')
