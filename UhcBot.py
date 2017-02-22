@@ -15,6 +15,11 @@ with open('teams.json') as f:
 with open('config.json') as f:
     configjson = json.load(f)
 
+# Set a game status
+@client.event
+async def on_ready():
+    await client.change_presence(game=discord.Game(name='Some UHC\'s'))
+
 @client.event
 async def on_message(message):
 #               Message Prefix ----v
