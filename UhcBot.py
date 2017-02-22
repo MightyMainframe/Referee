@@ -66,10 +66,16 @@ async def on_message(message):
             teamName = args[0]
             if teamName in teams:
                 allRoles = []
+                userRoles = []
                 for team in teams:
-                    allRoles.append(team)
+                    print("team: " + team)
+                    allRoles.append(teams[team])
                 allRolesSet = set(allRoles)
-                userRolesSet = set(message.author.roles)
+                for role in message.author.roles:
+                    userRoles.append(role.id)
+                userRolesSet = set(userRoles)
+                print(allRolesSet)
+                print(userRolesSet)
                 if allRolesSet.intersection(userRolesSet):
                     await client.send_message(message.channel, "{user} You're already in a team! You can't join two!".format(user=message.author.mention))
                 else:
