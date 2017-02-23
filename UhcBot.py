@@ -6,6 +6,7 @@
 #-------------------------------------------------------------------------#
 import discord
 import json
+import requests
 
 client = discord.Client()
 
@@ -15,10 +16,13 @@ with open('teams.json') as f:
 with open('config.json') as f:
     configjson = json.load(f)
 
+with open('whitelist.json') as f:
+    whitelistjson = json.load(f)
+
 # Set a game status
 @client.event
 async def on_ready():
-    await client.change_presence(game=discord.Game(name='Some UHC\'s'))
+    await client.change_presence(game=discord.Game(name='UHC organization'))
 
 @client.event
 async def on_message(message):
@@ -32,6 +36,12 @@ async def on_message(message):
         elif command == "join":
             await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
             role = discord.utils.get(message.server.roles, id=configjson["RoleToAssign"])
+            response = requests.get("https://api.mojang.com/users/profiles/minecraft/{nickname}".format(nickname=message.author.display_name))
+            whitelist_data = response.json()
+            print(whitelist_data)
+            whitelistjson.append(whitelist_data)
+            with open('whitelist.json', 'w') as f:
+                json.dump(whitelistjson, f)
             await client.add_roles(message.author, role)
 #       !setRole command
         elif command == "setRole":
@@ -84,7 +94,9 @@ async def on_message(message):
                     await client.add_roles(message.author, role)
             else:
                 await client.send_message(message.channel, "This team is non existing! Please contact a Moderator or Administrator if you think this team should exist.")
-
+        elif command == "start":
+            await client.change_presence(game=discord.Game(name='A UHC! Come join!'))
+            await client.send_message(message.channel, "Status changed! Let's get roling!")
 
 
 
