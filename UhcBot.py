@@ -94,7 +94,9 @@ async def on_message(message):
                     await client.add_roles(message.author, role)
             else:
                 await client.send_message(message.channel, "This team is non existing! Please contact a Moderator or Administrator if you think this team should exist.")
-
+        elif command == "start":
+            await client.change_presence(game=discord.Game(name='A UHC! Come join!'))
+            await client.send_message(message.channel, "Status changed! Let's get roling!")
 
 
 
@@ -105,4 +107,4 @@ async def on_message(message):
 
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
-client.run('TOKEN')
+client.run('Mjc1Nzk0ODQzMzI5MTAxODI0.C3GiFA.eusb_FZ8n4mZfU72qcik_D9a5LI')
