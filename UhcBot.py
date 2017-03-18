@@ -71,7 +71,7 @@ async def on_message(message):
                 with open('teams.json', 'w') as f:
                     json.dump(teams, f)
                 teamRole = discord.utils.get(message.server.roles, id=teamID)
-                await client.send_message(message.channel, teamRole.mention)
+                await client.send_message(message.channel, "Team {teamName} was added with role {team}".format(teamName=teamName, team=teamRole.mention))
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !team command to join team, takes 1 arg, teamName
