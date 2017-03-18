@@ -41,7 +41,6 @@ async def on_message(message):
                 await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
                 role = discord.utils.get(message.server.roles, id=configjson["RoleToAssign"])
                 whitelist_data = response.json()
-                print(whitelist_data)
                 whitelistjson.append(whitelist_data)
                 with open('whitelist.json', 'w') as f:
                     json.dump(whitelistjson, f)
@@ -81,14 +80,11 @@ async def on_message(message):
                 allRoles = []
                 userRoles = []
                 for team in teams:
-                    print("team: " + team)
                     allRoles.append(teams[team])
                 allRolesSet = set(allRoles)
                 for role in message.author.roles:
                     userRoles.append(role.id)
                 userRolesSet = set(userRoles)
-                print(allRolesSet)
-                print(userRolesSet)
                 if allRolesSet.intersection(userRolesSet):
                     await client.send_message(message.channel, "{user} You're already in a team! You can't join two!".format(user=message.author.mention))
                 else:
