@@ -56,6 +56,7 @@ async def on_message(message):
                 configjson.update(role_dict)
                 with open('config.json', 'w') as f:
                     json.dump(configjson, f)
+                await client.send_message(message.channel, "{user} | Changed default `!join` role to {role}!".format(user=message.author.mention, role=discord.utils.get(message.server.roles, id=_roleToAssign).mention))
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !setTeam command, takes 2 args, teamName and a mention to the teamRole
