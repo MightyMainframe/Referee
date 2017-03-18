@@ -34,15 +34,17 @@ async def on_message(message):
             await client.send_message(message.channel, "Yup things seem to working... for now")
 #       !join command
         elif command == "join":
-            await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
-            role = discord.utils.get(message.server.roles, id=configjson["RoleToAssign"])
             response = requests.get("https://api.mojang.com/users/profiles/minecraft/{nickname}".format(nickname=message.author.display_name))
-            whitelist_data = response.json()
-            print(whitelist_data)
-            whitelistjson.append(whitelist_data)
-            with open('whitelist.json', 'w') as f:
-                json.dump(whitelistjson, f)
-            await client.add_roles(message.author, role)
+            if response.status_code == 204:
+                await client.send_message(message.channel, "Couldn't add {user} to the whitelist. Make sure your Nickname on this server matches your minecraft IGN.".format(user=message.author.mention))
+            else:
+                await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
+                role = discord.utils.get(message.server.roles, id=configjson["RoleToAssign"])
+                whitelist_data = response.json()
+                whitelistjson.append(whitelist_data)
+                with open('whitelist.json', 'w') as f:
+                    json.dump(whitelistjson, f)
+                await client.add_roles(message.author, role)
 #       !setRole command
         elif command == "setRole":
             _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
@@ -54,6 +56,7 @@ async def on_message(message):
                 configjson.update(role_dict)
                 with open('config.json', 'w') as f:
                     json.dump(configjson, f)
+                await client.send_message(message.channel, "{user} | Changed default `!join` role to {role}!".format(user=message.author.mention, role=discord.utils.get(message.server.roles, id=_roleToAssign).mention))
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !setTeam command, takes 2 args, teamName and a mention to the teamRole
@@ -68,7 +71,7 @@ async def on_message(message):
                 with open('teams.json', 'w') as f:
                     json.dump(teams, f)
                 teamRole = discord.utils.get(message.server.roles, id=teamID)
-                await client.send_message(message.channel, teamRole.mention)
+                await client.send_message(message.channel, "Team {teamName} was added with role {team}".format(teamName=teamName, team=teamRole.mention))
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !team command to join team, takes 1 arg, teamName
@@ -78,14 +81,11 @@ async def on_message(message):
                 allRoles = []
                 userRoles = []
                 for team in teams:
-                    print("team: " + team)
                     allRoles.append(teams[team])
                 allRolesSet = set(allRoles)
                 for role in message.author.roles:
                     userRoles.append(role.id)
                 userRolesSet = set(userRoles)
-                print(allRolesSet)
-                print(userRolesSet)
                 if allRolesSet.intersection(userRolesSet):
                     await client.send_message(message.channel, "{user} You're already in a team! You can't join two!".format(user=message.author.mention))
                 else:
