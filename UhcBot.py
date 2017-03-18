@@ -34,15 +34,18 @@ async def on_message(message):
             await client.send_message(message.channel, "Yup things seem to working... for now")
 #       !join command
         elif command == "join":
-            await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
-            role = discord.utils.get(message.server.roles, id=configjson["RoleToAssign"])
             response = requests.get("https://api.mojang.com/users/profiles/minecraft/{nickname}".format(nickname=message.author.display_name))
-            whitelist_data = response.json()
-            print(whitelist_data)
-            whitelistjson.append(whitelist_data)
-            with open('whitelist.json', 'w') as f:
-                json.dump(whitelistjson, f)
-            await client.add_roles(message.author, role)
+            if response.status_code == 204:
+                await client.send_message(message.channel, "Couldn't add {user} to the whitelist. Make sure your Nickname on this server matches your minecraft IGN.".format(user=message.author.mention))
+            else:
+                await client.send_message(message.channel, "{user} is added to the UHC!".format(user=message.author.mention))
+                role = discord.utils.get(message.server.roles, id=configjson["RoleToAssign"])
+                whitelist_data = response.json()
+                print(whitelist_data)
+                whitelistjson.append(whitelist_data)
+                with open('whitelist.json', 'w') as f:
+                    json.dump(whitelistjson, f)
+                await client.add_roles(message.author, role)
 #       !setRole command
         elif command == "setRole":
             _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
