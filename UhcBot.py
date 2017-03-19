@@ -26,6 +26,8 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
+    _adminRole = discord.utils.get(message.server.roles, name=configjson["adminRole"])
 #               Message Prefix ----v
     if message.content.startswith('!'):
         command, *args = message.content[1:].split()
@@ -47,8 +49,6 @@ async def on_message(message):
                 await client.add_roles(message.author, role)
 #       !setRole command
         elif command == "setRole":
-            _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
-            _adminRole = discord.utils.get(message.server.roles, name=configjson["adminRole"])
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 completeID = args[0]
                 _roleToAssign = completeID.strip('<>&@')
@@ -61,8 +61,6 @@ async def on_message(message):
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !setTeam command, takes 2 args, teamName and a mention to the teamRole
         elif command == "setTeam":
-            _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
-            _adminRole = discord.utils.get(message.server.roles, name=configjson["adminRole"])
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 teamName = args[0]
                 teamID = args[1].strip('<>&@')
@@ -97,7 +95,11 @@ async def on_message(message):
         elif command == "start":
             await client.change_presence(game=discord.Game(name='A UHC! Come join!'))
             await client.send_message(message.channel, "Status changed! Let's get roling!")
-
+        elif command == "whitelist":
+            if _modRole in message.author.roles or _adminRole in message.author.roles:
+                await client.send_message(message.channel, "Here is the whitelist: {list}".format(list=whitelistjson))
+            else:
+                await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 
 
 
