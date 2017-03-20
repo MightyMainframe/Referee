@@ -97,7 +97,7 @@ async def on_message(message):
             await client.send_message(message.channel, "Status changed! Let's get roling!")
         elif command == "whitelist":
             if _modRole in message.author.roles or _adminRole in message.author.roles:
-                await client.send_message(message.channel, "Here is the whitelist: {list}".format(list=whitelistjson))
+                await client.send_message(message.channel, "Here is the whitelist: ```{}```".format(whitelistjson))
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 
