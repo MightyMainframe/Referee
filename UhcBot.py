@@ -10,15 +10,6 @@ import requests
 
 client = discord.Client()
 
-with open('teams.json') as f:
-    teams = json.load(f)
-
-with open('config.json') as f:
-    configjson = json.load(f)
-
-with open('whitelist.json') as f:
-    whitelistjson = json.load(f)
-
 # Set a game status
 @client.event
 async def on_ready():
@@ -26,6 +17,15 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    with open('teams.json') as f:
+        teams = json.load(f)
+
+    with open('config.json') as f:
+        configjson = json.load(f)
+
+    with open('whitelist.json') as f:
+        whitelistjson = json.load(f)
+    
     _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
     _adminRole = discord.utils.get(message.server.roles, name=configjson["adminRole"])
 #               Message Prefix ----v
