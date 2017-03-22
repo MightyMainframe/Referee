@@ -10,15 +10,6 @@ import requests
 
 client = discord.Client()
 
-with open('teams.json') as f:
-    teams = json.load(f)
-
-with open('config.json') as f:
-    configjson = json.load(f)
-
-with open('whitelist.json') as f:
-    whitelistjson = json.load(f)
-
 # Set a game status
 @client.event
 async def on_ready():
@@ -26,6 +17,15 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    with open('teams.json') as f:
+        teams = json.load(f)
+
+    with open('config.json') as f:
+        configjson = json.load(f)
+
+    with open('whitelist.json') as f:
+        whitelistjson = json.load(f)
+    
     _modRole = discord.utils.get(message.server.roles, name=configjson["modRole"])
     _adminRole = discord.utils.get(message.server.roles, name=configjson["adminRole"])
 #               Message Prefix ----v
@@ -96,10 +96,22 @@ async def on_message(message):
             await client.change_presence(game=discord.Game(name='A UHC! Come join!'))
             await client.send_message(message.channel, "Status changed! Let's get roling!")
         elif command == "whitelist":
-            if _modRole in message.author.roles or _adminRole in message.author.roles:
-                await client.send_message(message.channel, "Here is the whitelist: ```{}```".format(whitelistjson))
+            if not args:
+                if _modRole in message.author.roles or _adminRole in message.author.roles:
+                    await client.send_message(message.channel, "Here is the whitelist: ```{}```".format(whitelistjson))
+                else:
+                    await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
             else:
-                await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
+                if args[0] == "clear":
+                    whitelistjson = []
+                    with open('whitelist.json', 'w') as f:
+                        json.dump(whitelistjson, f)
+                    await client.send_message(message.channel, "Whitelist cleared!")
+                elif args[0] == "get":
+                    if _modRole in message.author.roles or _adminRole in message.author.roles:
+                        await client.send_message(message.channel, "Here is the whitelist: ```{}```".format(whitelistjson))
+                    else:
+                        await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 
 
 
