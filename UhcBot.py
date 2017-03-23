@@ -49,7 +49,7 @@ async def on_message(message):
                     json.dump(whitelistjson, f)
                 await client.add_roles(message.author, role)
 #       !setRole command
-        elif cmd == "setRole":
+        elif cmd == "setrole":
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 completeID = args[0]
                 _roleToAssign = completeID.strip('<>&@')
@@ -61,7 +61,7 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !setTeam command, takes 2 args, teamName and a mention to the teamRole
-        elif cmd == "setTeam":
+        elif cmd == "setteam":
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 teamName = args[0]
                 teamID = args[1].strip('<>&@')
