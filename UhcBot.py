@@ -31,11 +31,12 @@ async def on_message(message):
 #               Message Prefix ----v
     if message.content.startswith('!'):
         command, *args = message.content[1:].split()
+        cmd = command.lower()
 #       !test command
-        if command == "test":
+        if cmd == "test":
             await client.send_message(message.channel, "Yup things seem to working... for now")
 #       !join command
-        elif command == "join":
+        elif cmd == "join":
             response = requests.get("https://api.mojang.com/users/profiles/minecraft/{nickname}".format(nickname=message.author.display_name))
             if response.status_code == 204:
                 await client.send_message(message.channel, "Couldn't add {user} to the whitelist. Make sure your Nickname on this server matches your minecraft IGN.".format(user=message.author.mention))
@@ -48,7 +49,7 @@ async def on_message(message):
                     json.dump(whitelistjson, f)
                 await client.add_roles(message.author, role)
 #       !setRole command
-        elif command == "setRole":
+        elif cmd == "setRole":
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 completeID = args[0]
                 _roleToAssign = completeID.strip('<>&@')
@@ -60,7 +61,7 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !setTeam command, takes 2 args, teamName and a mention to the teamRole
-        elif command == "setTeam":
+        elif cmd == "setTeam":
             if _modRole in message.author.roles or _adminRole in message.author.roles:
                 teamName = args[0]
                 teamID = args[1].strip('<>&@')
@@ -73,8 +74,8 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 #       !team command to join team, takes 1 arg, teamName
-        elif command == "team":
-            teamName = args[0]
+        elif cmd == "team":
+            teamName = args[0].lower()
             if teamName in teams:
                 allRoles = []
                 userRoles = []
@@ -92,22 +93,22 @@ async def on_message(message):
                     await client.add_roles(message.author, role)
             else:
                 await client.send_message(message.channel, "This team is non existing! Please contact a Moderator or Administrator if you think this team should exist.")
-        elif command == "start":
+        elif cmd == "start":
             await client.change_presence(game=discord.Game(name='A UHC! Come join!'))
             await client.send_message(message.channel, "Status changed! Let's get roling!")
-        elif command == "whitelist":
+        elif cmd == "whitelist":
             if not args:
                 if _modRole in message.author.roles or _adminRole in message.author.roles:
                     await client.send_message(message.channel, "Here is the whitelist: ```{}```".format(whitelistjson))
                 else:
                     await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
             else:
-                if args[0] == "clear":
+                if args[0].lower() == "clear":
                     whitelistjson = []
                     with open('whitelist.json', 'w') as f:
                         json.dump(whitelistjson, f)
                     await client.send_message(message.channel, "Whitelist cleared!")
-                elif args[0] == "get":
+                elif args[0].lower() == "get":
                     if _modRole in message.author.roles or _adminRole in message.author.roles:
                         await client.send_message(message.channel, "Here is the whitelist: ```{}```".format(whitelistjson))
                     else:
