@@ -6,20 +6,62 @@
 #-------------------------------------------------------------------------#
 import discord
 import json
+import asyncio
 import requests
+
+import commands.test as test
+import commands.join as join
+
+commands = {
+"test":test.run,
+"join":join.run
+}
+
+list_compare = []
 
 client = discord.Client()
 
 # Set a game status
 @client.event
 async def on_ready():
+    print("I'm ALIIIIiiIIVEee!")
+    #await client.change_presence(game=discord.Game(name='Sign up now!'))
     await client.change_presence(game=discord.Game(name='UHC organization'))
 
 @client.event
 async def on_message(message):
     with open('teams.json') as f:
         teams = json.load(f)
+    with open('config.json') as f:
+        configjson = json.load(f)
+    with open('whitelist.json') as f:
+        whitelistjson = json.load(f)
 
+    roles=[discord.utils.get(message.server.roles, name=configjson["modRole"]),
+    discord.utils.get(message.server.roles, name=configjson["adminRole"])]
+#               Message Prefix ----v
+    if message.content.startswith('!'):
+        command, *args = message.content[1:].split()
+        cmd = command.lower()
+        if cmd in commands:
+            response = commands[cmd](client, message, *args)
+            if type(response) == type(list_compare):
+                for action in response:
+                    try:
+                        await action
+                        asyncio.sleep(3)
+                    except:
+                        print("Action Error")
+                        asyncio.sleep(3)
+            else:
+                try:
+                    await response
+                except:
+                    print("Error")
+        else:
+            await client.send_message(message.channel, "Invalid command")
+
+"""
     with open('config.json') as f:
         configjson = json.load(f)
 
@@ -114,12 +156,9 @@ async def on_message(message):
                     else:
                         await client.send_message(message.channel, "You don't have the permissions needed to use this command! If this is a mistake please contact a Moderator or Administrator")
 
-
-
-
-
-
+"""
 
 #    DO NOT LEAVE THE TOKEN IN HERE FROM NOW ON
 #    (Bad things could happen if it is public)
+
 client.run('TOKEN')
