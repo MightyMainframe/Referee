@@ -4,12 +4,13 @@ import json
 
 
 
-def run(client, message, *args):
+def run(client, message, roles, *args):
     with open('config.json') as f:
         configjson = json.load(f)
-
     with open('whitelist.json') as f:
         whitelistjson = json.load(f)
+
+#  Testing for arguments
     if len(args) < 1:
         response = requests.get(
             "https://api.mojang.com/users/profiles/minecraft/{nickname}".format(
@@ -20,6 +21,8 @@ def run(client, message, *args):
             nickname=args[1]))
     else:
         return client.send_message(client.channel, "Too many arguments")
+
+
     if response.status_code == 204:
         return client.send_message(message.channel,
         "Couldn't add {user} to the whitelist. {A}{B}".format(
