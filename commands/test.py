@@ -1,4 +1,3 @@
-
 import discord
 
 def run(client, message, roles, *args):
