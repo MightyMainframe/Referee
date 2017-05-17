@@ -77,4 +77,4 @@ async def on_message(message):
 
 
 #    DO NOT LEAVE THE TOKEN IN HERE
-client.run('MzEzNTQzMzk4MjEwNDA0MzUy.C_0uPA.bsChbvoa2xSgN2kk4D1JaO2rxpo')
+client.run('TOKEN')
