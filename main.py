@@ -53,7 +53,7 @@ async def on_message(message):
     roles=[discord.utils.get(message.server.roles, name=configjson["modRole"]),
     discord.utils.get(message.server.roles, name=configjson["adminRole"])]
 #               Message Prefix ----v
-    if message.content.startswith('>'):
+    if message.content.startswith('!'):
         command, *args = message.content[1:].split()
         cmd = command.lower()
         if cmd in commands:
