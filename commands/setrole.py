@@ -3,7 +3,7 @@ import discord
 def run(client, message, roles, *args):
     with open('config.json') as f:
         configjson = json.load(f)
-    if modRole in message.author.roles or adminRole in message.author.roles:
+    if roles[0] in message.author.roles or roles[1] in message.author.roles:
         completeID = args[0]
         roleToAssign = completeID.strip('<>&@')
         role_dict = {"RoleToAssign": roleToAssign}
