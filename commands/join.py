@@ -33,7 +33,10 @@ def run(client, message, roles, *args):
         role = discord.utils.get(message.server.roles,
             id=configjson["RoleToAssign"])
         whitelist_data = response.json()
-        whitelistjson.append(whitelist_data)
+        uuid = whitelist_data["id"]
+        user_name = whitelist_data["name"]
+        user_data = {"uuid":uuid, "name":user_name}
+        whitelistjson.append(user_data)
         with open('whitelist.json', 'w') as f:
             json.dump(whitelistjson, f)
         actions = [client.add_roles(message.author, role), client.send_message(
