@@ -1,41 +1,30 @@
 import discord
-import json
+import json_handler
 
-def run(client, message, roles, *args):
-    with open('whitelist.json') as f:
-        whitelistjson = json.load(f)
-    whitelist_send = "Here is the whitelist: ```{}```".format(whitelistjson)
-    if not args:
-        if roles[0] in message.author.roles or roles[1] in message.author.roles:
-            if len(whitelist_send) <= 2000:
-                return client.send_message(message.channel, whitelist_send)
+whitelist_message = "Here is the whitelist:```{}```"
+
+
+async def run(client, message, roles, *args):
+    if len(args):
+        whitelist = json_handler.load("whitelist")
+        subcommand = args[0].lower()
+        if subcommand == "get":
+            if len(whitelist_message.format(whitelist)) <= 2000:
+                await client.send_message(message.channel,
+                                          whitelist_message.format(whitelist))
             else:
-                return client.send_file(
-                    message.channel,
-                    "whitelist.json",
-                    content="Here's the whitelist!")
+                await client.send_file(message.channel, 
+                                       "whitelist.json",
+                                       content="Here is the whitelist:")
+        elif subcommand == "clear":
+            whitelist = []
+            json_handler.write("whitelist", whitelist)
+            await client.send_message(message.channel, "Whitelist cleared!")
+        elif subcommand == "file":
+            await client.send_file(message.channel,
+                                   "whitelist.json",
+                                   content="Here is the whitelist:")
         else:
-            return client.send_message(message.channel, "Invalid permissions")
+            await client.send_message(message.channel, "Invalid subcommand.")
     else:
-        if args[0].lower() == "clear":
-            whitelistjson = []
-            with open('whitelist.json', 'w') as f:
-                json.dump(whitelistjson, f)
-            return client.send_message(message.channel, "Whitelist cleared!")
-        elif args[0].lower() == "file":
-            return client.send_file(
-                message.channel,
-                "whitelist.json",
-                content="Here's the whitelist!")
-        elif args[0].lower() == "get":
-            if roles[0] in message.author.roles or roles[1] in message.author.roles:
-                if len(whitelist_send) <= 2000:
-                    return client.send_message(message.channel, whitelist_send)
-                else:
-                    return client.send_file(
-                        message.channel,
-                        "whitelist.json",
-                        content="Here's the whitelist!")
-            else:
-                return client.send_message(message.channel,
-                    "Invalid permissions")
+        await client.send_message(message.channel, "Not enough arguments.")
