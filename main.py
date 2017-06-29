@@ -5,9 +5,8 @@
 #          possible, (it doesn't need to be as formatted as mine)         #
 #-------------------------------------------------------------------------#
 import discord
-import json
 import asyncio
-
+import json_handler
 
 #-------------- COMMAND IMPORTING --------------#
 import commands.test as test
@@ -21,17 +20,11 @@ import commands.whitelist as whitelist
 
 #------- Add commands to the parser here -------#
 commands = {
-"join":join.run,
-"setrole":setrole.run,
-"setteam":setteam.run,
-"start":start.run,
-"team":team.run,
 "test":test.run,
 "whitelist":whitelist.run
 }
 #-----------------------------------------------#
 
-list_compare = []
 
 client = discord.Client()
 
@@ -43,38 +36,23 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    with open('teams.json') as f:
-        teams = json.load(f)
-    with open('config.json') as f:
-        configjson = json.load(f)
-    with open('whitelist.json') as f:
-        whitelistjson = json.load(f)
+    config = json_handler.load("config")
+    if message.content.startswith(config["command-prefix"]):
+        if message.author.id not in config["blacklist"]["users"].keys():
+            if message.channel.id not in config["blacklist"]["channels"].keys():
+                command, *args = message.content[1:].split()
+                command = command.lower()
+                if command in commands:
+                    await commands[command](client, message, command, *args)
+                else:
+                    await client.send_message(message.channel,
+                                              "Invalid command.")
 
-    roles=[discord.utils.get(message.server.roles, name=configjson["modRole"]),
-    discord.utils.get(message.server.roles, name=configjson["adminRole"])]
-#               Message Prefix ----v
-    if message.content.startswith('!'):
-        command, *args = message.content[1:].split()
-        cmd = command.lower()
-        if cmd in commands:
-            response = commands[cmd](client, message, roles, *args)
-            if type(response) == type(list_compare):
-                for action in response:
-                    try:
-                        await action
-                        asyncio.sleep(3)
-                    except:
-                        print("Action Error")
-                        asyncio.sleep(3)
-            else:
-                try:
-                    await response
-                except:
-                    print("Error")
-        else:
-            await client.send_message(message.channel, "Invalid command")
 
 
 
 #    DO NOT LEAVE THE TOKEN IN HERE
-client.run('TOKEN')
+try:
+    client.run("TOKEN")
+except:
+    print("Oh no, it seems as though something went wrong upon login!")
