@@ -7,6 +7,16 @@ import json_handler
 async def run(client, message, roles, *args):
     config = json_handler.load("config")
     whitelist = json_handler.load("whitelist")
+    
+    user_roles = []
+    for role in message.author.roles:
+        user_roles.append(role.name)
+    role = discord.utils.get(message.server.roles,
+            id=config["RoleToAssign"])
+    if role in user_roles:
+        await client.send_message(message.channel, "You already joined!")
+        return
+    
 #  Testing for arguments
     if len(args) < 1:
         response = requests.get(
@@ -17,7 +27,7 @@ async def run(client, message, roles, *args):
             "https://api.mojang.com/users/profiles/minecraft/{nickname}".format(
             nickname=args[0]))
     else:
-        await client.send_message(client.channel, "Too many arguments")
+        await client.send_message(message.channel, "Too many arguments")
 
 
     if response.status_code == 204:
