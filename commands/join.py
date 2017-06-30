@@ -1,15 +1,12 @@
 import discord
 import requests
-import json
+import json_handler
 
 
 
-def run(client, message, roles, *args):
-    with open('config.json') as f:
-        configjson = json.load(f)
-    with open('whitelist.json') as f:
-        whitelistjson = json.load(f)
-
+async def run(client, message, roles, *args):
+    config = json_handler.load("config")
+    whitelist = json_handler.load("whitelist")
 #  Testing for arguments
     if len(args) < 1:
         response = requests.get(
@@ -18,28 +15,43 @@ def run(client, message, roles, *args):
     elif len(args) == 1:
         response = requests.get(
             "https://api.mojang.com/users/profiles/minecraft/{nickname}".format(
-            nickname=args[1]))
+            nickname=args[0]))
     else:
-        return client.send_message(client.channel, "Too many arguments")
+        await client.send_message(client.channel, "Too many arguments")
 
 
     if response.status_code == 204:
-        return client.send_message(message.channel,
-        "Couldn't add {user} to the whitelist. {A}{B}".format(
+        if len(args):
+            await client.send_message(message.channel,
+                "Couldn't add `{user}` to the whitelist. {A}{B}{C}".format(
+                user=args[0],
+                A="Make sure your Nickname on this server matches your minecraft",
+                B=" in-game-name or you add your username after the command like,",
+                C=" \"{}join [in-game-name]\" (**CASE SENSITIVE**)".format(
+                                                     config["command-prefix"])))
+            return
+        await client.send_message(message.channel,
+           "Couldn't add {user} to the whitelist. {A}{B}{C}".format(
             user=message.author.mention,
             A="Make sure your Nickname on this server matches your minecraft",
-            B=" in-game-name."))
+            B=" in-game-name or you add your username after the command like,",
+            C=" \"{}join [in-game-name]\" (**CASE SENSITIVE**)".format(
+                                                 config["command-prefix"])))
     else:
         role = discord.utils.get(message.server.roles,
-            id=configjson["RoleToAssign"])
+            id=config["RoleToAssign"])
         whitelist_data = response.json()
         uuid = whitelist_data["id"]
         user_name = whitelist_data["name"]
         user_data = {"uuid":uuid, "name":user_name}
-        whitelistjson.append(user_data)
-        with open('whitelist.json', 'w') as f:
-            json.dump(whitelistjson, f)
-        actions = [client.add_roles(message.author, role), client.send_message(
-            message.channel, "{user}{A}".format(user=message.author.mention,
-            A=" is added to the UHC!"))]
-        return actions
+        whitelist.append(user_data)
+        json_handler.write("whitelist", whitelist)
+        await client.add_roles(message.author, role)
+        if len(args):
+            await client.send_message(message.channel,
+                                      "{user}{A}".format(user=args[0],
+                                      A=" has been added to the UHC!"))
+            return
+        await client.send_message(message.channel,
+                                "{user}{A}".format(user=message.author.name,
+                                A=" has been added to the UHC!"))

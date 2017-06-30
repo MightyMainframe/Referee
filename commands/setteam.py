@@ -1,22 +1,21 @@
 import discord
-import json
+import json_handler
 
-def run(client, message, roles, *args):
-    with open('config.json') as f:
-        configjson = json.load(f)
-    with open('teams.json') as f:
-        teams = json.load(f)
-    if roles[0] in message.author.roles or roles[1] in message.author.roles:
+async def run(client, message, command, *args):
+    config = json_handler.load("config")
+    teams = json_handler.load("teams")
+    user_roles = []
+    for role in message.author.roles:
+        user_roles.append(role.name)
+    if config["modRole"] in user_roles or config["adminRole"] in user_roles:
         teamName = args[0]
         teamID = args[1].strip('<>&@')
-        team_dict = {teamName: teamID}
-        teams.update(team_dict)
-        with open('teams.json', 'w') as f:
-            json.dump(teams, f)
+        teams[teamName] = teamID
+        json_handler.write("teams", teams)
         teamRole = discord.utils.get(message.server.roles, id=teamID)
-        return client.send_message(message.channel,
-            "Team {teamName} was added with role {team}".format(
-            teamName=teamName,
-            team=teamRole.mention))
+        await client.send_message(message.channel,
+                            "Team {teamName} was added with role {team}".format(
+                                teamName=teamName,
+                                team=teamRole.mention))
     else:
-        return client.send_message(message.channel, "Invalid permissions.")
+        await client.send_message(message.channel, "Invalid permissions.")
