@@ -25,7 +25,7 @@ async def run(client, message, roles, *args):
         "Couldn't add {user} to the whitelist. {A}{B}{C}".format(
             user=message.author.mention,
             A="Make sure your Nickname on this server matches your minecraft",
-            B=" in-game-name or you add your username after the command like,"
+            B=" in-game-name or you add your username after the command like,",
             C=" \"{}join [in-game-name]\"".format(
                                                      config["command-prefix"])))
     else:
