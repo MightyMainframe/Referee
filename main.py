@@ -15,6 +15,7 @@ import commands.setrole as setrole
 import commands.setteam as setteam
 import commands.team as team
 import commands.start as start
+import commands.unjoin as unjoin
 import commands.whitelist as whitelist
 #-----------------------------------------------#
 
@@ -24,6 +25,7 @@ commands = {
 "join":join.run,
 "test":test.run,
 "start":start.run,
+"unjoin":unjoin.run,
 "setrole":setrole.run,
 "setteam":setteam.run,
 "whitelist":whitelist.run
