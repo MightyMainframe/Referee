@@ -21,13 +21,22 @@ async def run(client, message, roles, *args):
 
 
     if response.status_code == 204:
-        return client.send_message(message.channel,
-        "Couldn't add {user} to the whitelist. {A}{B}{C}".format(
+        if len(args):
+            await client.send_message(message.channel,
+                "Couldn't add `{user}` to the whitelist. {A}{B}{C}".format(
+                user=args[0],
+                A="Make sure your Nickname on this server matches your minecraft",
+                B=" in-game-name or you add your username after the command like,",
+                C=" \"{}join [in-game-name]\" (**CASE SENSITIVE**)".format(
+                                                     config["command-prefix"])))
+            return
+        await client.send_message(message.channel,
+           "Couldn't add {user} to the whitelist. {A}{B}{C}".format(
             user=message.author.mention,
             A="Make sure your Nickname on this server matches your minecraft",
             B=" in-game-name or you add your username after the command like,",
-            C=" \"{}join [in-game-name]\"".format(
-                                                     config["command-prefix"])))
+            C=" \"{}join [in-game-name]\" (**CASE SENSITIVE**)".format(
+                                                 config["command-prefix"])))
     else:
         role = discord.utils.get(message.server.roles,
             id=config["RoleToAssign"])
@@ -38,6 +47,11 @@ async def run(client, message, roles, *args):
         whitelist.append(user_data)
         json_handler.write("whitelist", whitelist)
         await client.add_roles(message.author, role)
+        if len(args):
+            await client.send_message(message.channel,
+                                      "{user}{A}".format(user=args[0],
+                                      A=" has been added to the UHC!"))
+            return
         await client.send_message(message.channel,
-                                "{user}{A}".format(user=message.author.mention,
-                                A=" is added to the UHC!"))
+                                "{user}{A}".format(user=message.author.name,
+                                A=" has been added to the UHC!"))

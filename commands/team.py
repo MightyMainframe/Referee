@@ -6,7 +6,7 @@ Administrator if you think this in an error"
 
 async def run(client, message, roles, *args):
     teams = json_handler.load("teams")
-    teamName = args[0].lower()
+    teamName = args[0]
     if teamName in teams.keys():
         allRoles = []
         userRoles = []

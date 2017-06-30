@@ -1,3 +1,4 @@
+import discord
 import json_handler
 
 async def run(client, message, command, *args):
@@ -9,8 +10,8 @@ async def run(client, message, command, *args):
     if config["modRole"] in user_roles or config["adminRole"] in user_roles:
         teamName = args[0]
         teamID = args[1].strip('<>&@')
-        team_dict = {teamName: teamID}
-        json_handler.write("teams", team_dict)
+        teams[teamName] = teamID
+        json_handler.write("teams", teams)
         teamRole = discord.utils.get(message.server.roles, id=teamID)
         await client.send_message(message.channel,
                             "Team {teamName} was added with role {team}".format(
