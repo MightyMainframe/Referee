@@ -20,7 +20,12 @@ import commands.whitelist as whitelist
 
 #------- Add commands to the parser here -------#
 commands = {
+"team":team.run,
+"join":join.run,
 "test":test.run,
+"start":start.run,
+"setrole":setrole.run,
+"setteam":setteam.run,
 "whitelist":whitelist.run
 }
 #-----------------------------------------------#
@@ -51,8 +56,8 @@ async def on_message(message):
 
 
 
-#    DO NOT LEAVE THE TOKEN IN HERE
+config = json_handler.load("config")
 try:
-    client.run("TOKEN")
+    client.run(config["token"])
 except:
     print("Oh no, it seems as though something went wrong upon login!")
