@@ -7,9 +7,9 @@ def write(name, data):
             file.write(json.dumps(data, indent=2))
     elif name == "teams":
         with open("teams.json", "w") as file:
-            file.write(json.dumps(data, indent=2))
+            file.write(json.dumps(data, file, indent=2))
     elif name == "whitelist":
-        with open("config.json", "w") as file:
+        with open("whitelist.json", "w") as file:
             file.write(json.dumps(data, indent=2))
 
 
