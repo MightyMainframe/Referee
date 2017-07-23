@@ -5,7 +5,7 @@
   "adminRole":"Admin",
   "RoleToAssign":"",
   "blacklist":{
-    "users":{},
-    "channels":{}
+    "users":[],
+    "channels":[]
   }
 }
