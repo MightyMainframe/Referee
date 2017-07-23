@@ -27,11 +27,3 @@ def load(name):
         with open("whitelist.json", "r") as file:
             whitelist = json.load(file)
         return whitelist
-
-
-
-def add_to_blacklist(blacklist, ID_to_blacklist, name, reason):
-    "Adds an ID to the specified blacklist"
-    config = load("config")
-    config[blacklist][ID_to_blacklist] = {"reason":reason}
-    write("config", config)

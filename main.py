@@ -11,11 +11,12 @@ import json_handler
 #-------------- COMMAND IMPORTING --------------#
 import commands.test as test
 import commands.join as join
-import commands.setrole as setrole
-import commands.setteam as setteam
 import commands.team as team
 import commands.start as start
 import commands.unjoin as unjoin
+import commands.setrole as setrole
+import commands.setteam as setteam
+import commands.blacklist as blacklist
 import commands.whitelist as whitelist
 #-----------------------------------------------#
 
@@ -45,15 +46,18 @@ async def on_ready():
 async def on_message(message):
     config = json_handler.load("config")
     if message.content.startswith(config["command-prefix"]):
-        if message.author.id not in config["blacklist"]["users"].keys():
-            if message.channel.id not in config["blacklist"]["channels"].keys():
-                command, *args = message.content[1:].split()
-                command = command.lower()
-                if command in commands:
-                    await commands[command](client, message, command, *args)
-                else:
-                    await client.send_message(message.channel,
-                                              "Invalid command.")
+        command, *args = message.content[1:].split()
+        command = command.lower()
+        for user in config["blacklist"]["users"]:
+            if user["id"] == message.author.id:
+                return
+        if command == "blacklist":
+            await blacklist.run(client, message, command, *args)
+        for channel in config["blacklist"]["channels"]:
+            if channel["id"] == message.channel.id:
+                return
+        if command in commands:
+            await commands[command](client, message, command, *args)
 
 
 
