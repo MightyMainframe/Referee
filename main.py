@@ -29,8 +29,7 @@ commands = {
 "unjoin":unjoin.run,
 "setrole":setrole.run,
 "setteam":setteam.run,
-"whitelist":whitelist.run,
-"blacklist":blacklist.run
+"whitelist":whitelist.run
 }
 #-----------------------------------------------#
 
@@ -47,14 +46,16 @@ async def on_ready():
 async def on_message(message):
     config = json_handler.load("config")
     if message.content.startswith(config["command-prefix"]):
+        command, *args = message.content[1:].split()
+        command = command.lower()
         for user in config["blacklist"]["users"]:
             if user["id"] == message.author.id:
                 return
+        if command == "blacklist":
+            await blacklist.run(client, message, command, *args)
         for channel in config["blacklist"]["channels"]:
             if channel["id"] == message.channel.id:
                 return
-        command, *args = message.content[1:].split()
-        command = command.lower()
         if command in commands:
             await commands[command](client, message, command, *args)
 
