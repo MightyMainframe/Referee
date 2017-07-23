@@ -51,7 +51,20 @@ async def run(client, message, roles, *args):
         role = discord.utils.get(message.server.roles,
             id=config["RoleToAssign"])
         whitelist_data = response.json()
+        if not len(args):
+            for whitelisted in whitelist:
+                if whitelisted["name"] == message.author.display_name:
+                    await client.send_message(message.channel,
+                      "You're already in the whitelist. You cannot be added again.")
+                    return
+        else:
+            for whitelisted in whitelist:
+                if whitelisted["name"] == args[0]:
+                    await client.send_message(message.channel,
+                      "You're already in the whitelist. You cannot be added again.")
+                    return
         uuid = whitelist_data["id"]
+        uuid = uuid[:8]+"-"+uuid[8:12]+"-"+uuid[12:16]+"-"+uuid[16:20]+"-"+uuid[20:]
         user_name = whitelist_data["name"]
         user_data = {"uuid":uuid, "name":user_name}
         whitelist.append(user_data)
