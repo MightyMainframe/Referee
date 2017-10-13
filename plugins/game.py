@@ -3,9 +3,16 @@ import gevent
 from constants import check_global_admin, GAME_ADD_STEPS, INFO_STEPS
 
 class GameManager(Plugin):
+
+    def add_game(self, name, desc, create_channels):
+        """
+        Sets up a new game
+        """
+
+
     @Plugin.command('add', group='game')
     def add_command(self, event):
-        """This is one big heck of a function"""
+        """Gets all info required for creation a new game"""
         if not check_global_admin(event.msg.author.id):
             return
 
@@ -55,3 +62,4 @@ class GameManager(Plugin):
                 game_name, game_desc, ('' if create_channels is True else ' not')
             )
         ))
+        self.add_game(game_name, game_desc, create_channels)
