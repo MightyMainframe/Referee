@@ -1,14 +1,14 @@
+"""Manages all game related bits"""
 from disco.bot import Plugin
 import gevent
 from constants import check_global_admin, GAME_ADD_STEPS, INFO_STEPS
 
 class GameManager(Plugin):
-
-    def add_game(self, name, desc, create_channels):
+    """Manages all game related bits"""
+    def add_game(self, name, desc, create_channels=False):
         """
         Sets up a new game
         """
-
 
     @Plugin.command('add', group='game')
     def add_command(self, event):
