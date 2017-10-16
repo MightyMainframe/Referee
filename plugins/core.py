@@ -1,12 +1,15 @@
 """Core handler for bot"""
 import pprint
-
+import time
+import psycopg2
 from datetime import datetime
 
 import humanize
 
 from disco.bot import Plugin
 from disco.types.user import Game, Status, GameType
+from disco.types.message import MessageTable
+from db import init_db, database
 from constants import (
     PLAYING_STATUS, GLOBAL_ADMINS, PY_CODE_BLOCK, check_global_admin
 )
@@ -17,6 +20,7 @@ class CorePlugin(Plugin):
     """
     def load(self, ctx):
         super(CorePlugin, self).load(ctx)
+        init_db()
         self.started = datetime.utcnow()
 
     @Plugin.listen('Ready')
@@ -29,6 +33,33 @@ class CorePlugin(Plugin):
         if check_global_admin(event.msg.author.id):
             event.msg.reply('Bot was started {} ago'.format(
                 humanize.naturaldelta(datetime.utcnow() - self.started)))
+    
+    @Plugin.command('sql')
+    def sql_command(self, event):
+        if not check_global_admin(event.msg.author.id):
+            return
+        conn = database.obj.get_conn()
+        try:
+            tbl = MessageTable(codeblock=False)
+
+            with conn.cursor() as cur:
+                start = time.time()
+                cur.execute(event.codeblock.format(e=event))
+                dur = time.time() - start
+                tbl.set_header(*[desc[0] for desc in cur.description])
+
+                for row in cur.fetchall():
+                    tbl.add(*row)
+
+                result = tbl.compile()
+                if len(result) > 1900:
+                    return event.msg.reply(
+                        '_took {}ms_'.format(int(dur * 1000)),
+                        attachments=[('result.txt', result)])
+
+                event.msg.reply('```' + result + '```\n_took {}ms_\n'.format(int(dur * 1000)))
+        except psycopg2.Error as e:
+            event.msg.reply('```{}```'.format(e.pgerror))
 
     @Plugin.command('eval')
     def eval_command(self, event):
@@ -73,4 +104,3 @@ class CorePlugin(Plugin):
             event.msg.reply('', attachments=[('result.txt', result)])
         else:
             event.msg.reply(PY_CODE_BLOCK.format(result))
-

@@ -2,6 +2,7 @@
 from disco.bot import Plugin
 import gevent
 from constants import check_global_admin, GAME_ADD_STEPS, INFO_STEPS
+from models.game import Game
 
 class GameManager(Plugin):
     """Manages all game related bits"""
@@ -9,6 +10,10 @@ class GameManager(Plugin):
         """
         Sets up a new game
         """
+        game = Game.new(name=name, desc=desc)
+
+        g = Game.get(Game.name == name)
+        print g.desc
 
     @Plugin.command('add', group='game')
     def add_command(self, event):
