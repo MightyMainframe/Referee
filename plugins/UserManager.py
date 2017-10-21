@@ -46,7 +46,7 @@ class UserManager(Plugin):
                 return event.msg.reply('Invalid battle tag provided!')
             tag = tag.string
             user.add_battle_tag(tag)
-            return event.msg.reply('Okay! Added battle tag `{}` to your profile!').format(tag)
+            return event.msg.reply('Okay! Added battle tag `{}` to your profile!'.format(tag))
         elif key == 'minecraft':
             name = MC_NAME.search(value)
             if not check_regex(name):
@@ -59,14 +59,14 @@ class UserManager(Plugin):
             uuid = check.string
             uuid = uuid[:8]+"-"+uuid[8:12]+"-"+uuid[12:16]+"-"+uuid[16:20]+"-"+uuid[20:]
             user.add_minecraft_data(name, uuid)
-            return event.msg.reply('Okay! Added Minecraft name `{}` to your profile!').format(name)
+            return event.msg.reply('Okay! Added Minecraft name `{}` to your profile!'.format(name))
         elif key == 'steam':
             name = STEAM_NAME.search(value)
             if not check_regex(name):
                 return event.msg.reply('Invalid steam name provided')
             name = name.string
             user.add_steam_name(name)
-            return event.msg.reply('Okay! Added steamm name `{}` to your profile!').format(name)
+            return event.msg.reply('Okay! Added steamm name `{}` to your profile!'.format(name))
 
     @Plugin.command('remove', '<key:str>', aliases=['delete', 'clear'], group='metadata')
     def remove_metadata(self, event, key):
