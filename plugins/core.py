@@ -1,18 +1,17 @@
 """Core handler for bot"""
 import pprint
 import time
-import psycopg2
 from datetime import datetime
 
 import humanize
-
+import psycopg2
 from disco.bot import Plugin
-from disco.types.user import Game, Status, GameType
 from disco.types.message import MessageTable
-from db import init_db, database
-from constants import (
-    PLAYING_STATUS, GLOBAL_ADMINS, PY_CODE_BLOCK, check_global_admin
-)
+from disco.types.user import Game, GameType, Status
+
+from constants import PLAYING_STATUS, PY_CODE_BLOCK, check_global_admin
+from db import database, init_db
+
 
 class CorePlugin(Plugin):
     """
@@ -26,14 +25,14 @@ class CorePlugin(Plugin):
     @Plugin.listen('Ready')
     def on_ready(self, event):
         """Fired when bot is ready, sets playing status"""
-        self.client.update_presence(Status.invisible, Game(type=GameType.default, name=PLAYING_STATUS))
+        self.client.update_presence(Status.online, Game(type=GameType.default, name=PLAYING_STATUS))
 
     @Plugin.command('uptime')
     def uptime_command(self, event):
         if check_global_admin(event.msg.author.id):
             event.msg.reply('Bot was started {} ago'.format(
                 humanize.naturaldelta(datetime.utcnow() - self.started)))
-    
+
     @Plugin.command('sql')
     def sql_command(self, event):
         if not check_global_admin(event.msg.author.id):

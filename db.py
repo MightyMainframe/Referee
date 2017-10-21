@@ -1,7 +1,6 @@
 import redis
+from peewee import OP, Expression, Model, Proxy
 from playhouse.postgres_ext import PostgresqlExtDatabase
-from peewee import Proxy, OP, Model
-from peewee import Expression
 
 REGISTERED_MODELS = []
 
@@ -34,4 +33,9 @@ def init_db():
         if hasattr(model, 'SQL'):
             database.execute_sql(model.SQL)
 
-init_db()
+def reset_db():
+    init_db()
+
+    for model in REGISTERED_MODELS:
+        model.drop_table(True)
+        model.create_table(True)

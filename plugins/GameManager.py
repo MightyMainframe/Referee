@@ -1,19 +1,26 @@
 """Manages all game related bits"""
-from disco.bot import Plugin
 import gevent
-from constants import check_global_admin, GAME_ADD_STEPS, INFO_STEPS
+from disco.bot import Plugin
+
+from constants import GAME_ADD_STEPS, GAME_INFO_STEPS, check_global_admin
 from models.game import Game
+
 
 class GameManager(Plugin):
     """Manages all game related bits"""
-    def add_game(self, name, desc, create_channels=False):
+    def add_game(self, event, name, desc, create_channels=False):
         """
         Sets up a new game
         """
-        game = Game.new(name=name, desc=desc)
+        if create_channels:
+            #Create channels
+            channel_name = name.replace(' ', '-')
+            guild = event.msg.guild
+            category = guild.create_category(channel_name)
+            ac = category.create_text_channel('{}-announcements'.format(channel_name))
+            ac.topic = desc
 
-        g = Game.get(Game.name == name)
-        print g.desc
+        game = Game.new(name=name, desc=desc)
 
     @Plugin.command('add', group='game')
     def add_command(self, event):
@@ -43,7 +50,7 @@ class GameManager(Plugin):
             messages_to_delete.append(msg.reply(GAME_ADD_STEPS['fail']))
             remove_messages()
             return
-        for key, value in INFO_STEPS.iteritems():
+        for key, value in GAME_INFO_STEPS.iteritems():
             messages_to_delete.append(msg.reply(value))
             try:
                 message = self.wait_for_event(
@@ -67,4 +74,4 @@ class GameManager(Plugin):
                 game_name, game_desc, ('' if create_channels is True else ' not')
             )
         ))
-        self.add_game(game_name, game_desc, create_channels)
+        self.add_game(event, game_name, game_desc, create_channels)
