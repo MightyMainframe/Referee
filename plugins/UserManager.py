@@ -5,16 +5,26 @@ from disco.bot import Plugin
 from constants import BATTLE_TAG, MC_NAME, MC_UUID, STEAM_NAME, MC_UUID_URL
 from models.user import User
 
+def get_mc_uuid(username):
+    """Gets the UUID for a MC username"""
+    response = requests.get(MC_UUID_URL.format(username))
+    if response.status_code == 204:
+        return 'Oh no! Something went wrong! Double check your minecraft name and try again!'
+    uuid = response.json()["id"]
+    return uuid
+
+
+def check_regex(regex):
+    """Checks if a regex passed"""
+    if not regex or not regex.string:
+        return False
+    elif regex.string == '':
+        return False
+    else:
+        return True
 
 class UserManager(Plugin):
     """Manages user related bits"""
-    def get_mc_uuid(self, username):
-        """Gets the UUID for a MC username"""
-        response = requests.get(MC_UUID_URL.format(username))
-        if response.status_code == 204:
-            return 'Oh no! Something went wrong! Double check your minecraft name and try again!'
-        uuid = response.json()["id"]
-        return uuid
 
     @Plugin.command('add', '<key:str> <value:str>', aliases=['set', 'save'], group='metadata')
     def add_metadata(self, event, key, value):
@@ -32,17 +42,17 @@ class UserManager(Plugin):
             ))
         if key == 'blizzard':
             tag = BATTLE_TAG.search(value)
-            if not tag.string or tag.string == '':
+            if not check_regex(tag):
                 return event.msg.reply('Invalid battle tag provided!')
             tag = tag.string
             user.add_battle_tag(tag)
             return event.msg.reply('Okay! Added battle tag `{}` to your profile!').format(tag)
         elif key == 'minecraft':
             name = MC_NAME.search(value)
-            if not name.string or name.string == '':
+            if not check_regex(name):
                 return event.msg.reply('Invalid minecraft name provided')
             name = name.string
-            uuid = self.get_mc_uuid(name)
+            uuid = get_mc_uuid(name)
             check = MC_UUID.search(uuid)
             if not check.string or check.string == '':
                 event.msg.reply(uuid)
@@ -52,7 +62,7 @@ class UserManager(Plugin):
             return event.msg.reply('Okay! Added Minecraft name `{}` to your profile!').format(name)
         elif key == 'steam':
             name = STEAM_NAME.search(value)
-            if not name.string or name.string == '':
+            if not check_regex(name):
                 return event.msg.reply('Invalid steam name provided')
             name = name.string
             user.add_steam_name(name)
