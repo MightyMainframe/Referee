@@ -17,10 +17,10 @@ class GameManager(Plugin):
             channel_name = name.replace(' ', '-')
             guild = event.msg.guild
             category = guild.create_category(channel_name)
-            ac = category.create_text_channel('{}-announcements'.format(channel_name))
+            ac = category.create_text_channel('announcements')
             ac.topic = desc
 
-        game = Game.new(name=name, desc=desc)
+        Game.new(name=name, desc=desc, ac=ac.id if ac else None)
 
     @Plugin.command('add', group='game')
     def add_command(self, event):

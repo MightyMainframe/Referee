@@ -7,7 +7,6 @@ from db import BaseModel
 @BaseModel.register
 class Game(BaseModel):
     """Game Object"""
-    game_id = IntegerField(primary_key=True)
     name = CharField()
     desc = TextField()
     a_channel = BigIntegerField(null=True)
@@ -20,10 +19,11 @@ class Game(BaseModel):
         query.where(Game.game_id == self.game_id).execute()
 
     @classmethod
-    def new(cls, name, desc):
+    def new(cls, name, desc, ac=None):
         return cls.create(
             name=name,
-            desc=desc
+            desc=desc,
+            a_channel=ac
         )
 
     @classmethod

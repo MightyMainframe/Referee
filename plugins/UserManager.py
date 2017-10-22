@@ -20,8 +20,7 @@ def check_regex(regex):
         return False
     elif regex.string == '':
         return False
-    else:
-        return True
+    return True
 
 class UserManager(Plugin):
     """Manages user related bits"""
@@ -66,7 +65,7 @@ class UserManager(Plugin):
                 return event.msg.reply('Invalid steam name provided')
             name = name.string
             user.add_steam_name(name)
-            return event.msg.reply('Okay! Added steamm name `{}` to your profile!'.format(name))
+            return event.msg.reply('Okay! Added steam name `{}` to your profile!'.format(name))
 
     @Plugin.command('remove', '<key:str>', aliases=['delete', 'clear'], group='metadata')
     def remove_metadata(self, event, key):
