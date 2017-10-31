@@ -1,0 +1,9 @@
+version: '2'
+services:
+  bot:
+    build: .
+    command: python manage.py bot -e docker
+    volumes:
+      - .:/opt/referee
+    ports:
+      - "7171:7171"
