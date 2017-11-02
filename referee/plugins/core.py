@@ -1,16 +1,20 @@
 """Core handler for bot"""
+import contextlib
 import pprint
 import time
 from datetime import datetime
 
 import humanize
 import psycopg2
-from disco.bot import Plugin
-from disco.types.message import MessageTable
+from disco.bot import Bot, Plugin
+from disco.bot.command import CommandEvent
+from disco.types.message import MessageEmbed, MessageTable
 from disco.types.user import Game, GameType, Status
 
-from referee.constants import PLAYING_STATUS, PY_CODE_BLOCK, check_global_admin
+from referee import ENV
+from referee.constants import PLAYING_STATUS, PY_CODE_BLOCK, CONTROL_CHANNEL, check_global_admin
 from referee.db import database, init_db
+from referee.models.message import Command
 
 
 class CorePlugin(Plugin):
@@ -27,11 +31,89 @@ class CorePlugin(Plugin):
         """Fired when bot is ready, sets playing status"""
         self.client.update_presence(Status.online, Game(type=GameType.default, name=PLAYING_STATUS))
 
+
+    @Plugin.listen('MessageCreate')
+    def on_message_create(self, event):
+        if event.message.author.bot:
+            return
+
+        if hasattr(event, 'guild') and event.guild:
+            guild_id = event.guild.id
+        elif hasattr(event, 'guild_id') and event.guild_id:
+            guild_id = event.guild_id
+        else:
+            guild_id = None
+
+        guild = self.bot.client.state.guilds.get(event.guild.id) if guild_id else None
+        commands = list(self.bot.get_commands_for_message(
+            self.bot.config.commands_require_mention,
+            self.bot.config.commands_mention_rules,
+            self.bot.config.commands_prefix,
+            event.message
+        ))
+
+        if not len(commands):
+            return
+
+        global_admin = check_global_admin(event.author.id)
+
+        for command, match in commands:
+            if command.level == -1 and not global_admin:
+                continue
+
+            if not self.bot.check_command_permissions(command, event):
+                continue
+
+            try:
+                command_event = CommandEvent(command, event.message, match)
+                command.plugin.execute(command_event)
+            except:
+                tracked = Command.track(event, command, exception=True)
+                self.log.exception('Command error:')
+
+                with self.send_control_message() as embed:
+                    embed.title = u'Command Error: {}'.format(command.name)
+                    embed.color = 0xff6961
+                    embed.add_field(
+                        name='Author', value='({}) `{}`'.format(event.author, event.author.id), inline=True)
+                    embed.add_field(name='Channel', value='({}) `{}`'.format(
+                        event.channel.name,
+                        event.channel.id
+                    ), inline=True)
+                    embed.description = '```{}```'.format(u'\n'.join(tracked.traceback.split('\n')[-8:]))
+
+                return event.reply('Something went wrong, perhaps try again another time!')
+
+            Command.track(event, command)
+
+
+    @contextlib.contextmanager
+    def send_control_message(self):
+        embed = MessageEmbed()
+        embed.set_footer(text='Referee')
+        embed.timestamp = datetime.utcnow().isoformat()
+        embed.color = 0x779ecb
+        try:
+            yield embed
+            self.bot.client.api.channels_messages_create(
+                CONTROL_CHANNEL,
+                embed=embed
+            )
+        except:
+            self.log.exception('Failed to send control message:')
+            return
+
     @Plugin.command('uptime')
     def uptime_command(self, event):
         if check_global_admin(event.msg.author.id):
             event.msg.reply('Bot was started {} ago'.format(
                 humanize.naturaldelta(datetime.utcnow() - self.started)))
+
+    @Plugin.command('reconnect')
+    def reload_command(self, event):
+        if check_global_admin(event.msg.author.id):
+            event.msg.reply('Okay! Closing connection')
+            self.client.gw.ws.close()
 
     @Plugin.command('sql')
     def sql_command(self, event):
@@ -65,6 +147,7 @@ class CorePlugin(Plugin):
         if not check_global_admin(event.msg.author.id):
             return
         ctx = {
+            'self': self,
             'bot': self.bot,
             'client': self.bot.client,
             'state': self.bot.client.state,
