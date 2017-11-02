@@ -15,6 +15,8 @@ import logging
 import gevent
 import subprocess
 
+from referee.db import init_db
+
 class BotSupervisor(object):
     def __init__(self, env={}):
         self.proc = None
@@ -32,6 +34,7 @@ class BotSupervisor(object):
     def start(self):
         env = copy.deepcopy(os.environ)
         env.update(self.env)
+        init_db()
         self.proc = subprocess.Popen(['python', '-m', 'disco.cli', '--config', 'config.yaml'], env=env)
 
     def stop(self):

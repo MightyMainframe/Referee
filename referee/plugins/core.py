@@ -2,6 +2,7 @@
 import contextlib
 import pprint
 import time
+import traceback
 from datetime import datetime
 
 import humanize
@@ -11,26 +12,24 @@ from disco.bot.command import CommandEvent
 from disco.types.message import MessageEmbed, MessageTable
 from disco.types.user import Game, GameType, Status
 
-from referee import ENV
-from referee.constants import PLAYING_STATUS, PY_CODE_BLOCK, CONTROL_CHANNEL, check_global_admin
+from referee import ENV, STARTED
+from referee.constants import (CONTROL_CHANNEL, PLAYING_STATUS, PY_CODE_BLOCK,
+                               check_global_admin)
 from referee.db import database, init_db
-from referee.models.message import Command
 
 
-class CorePlugin(Plugin):
+class Core(Plugin):
     """
     Core plugin handling core bot features
     """
-    def load(self, ctx):
-        super(CorePlugin, self).load(ctx)
-        init_db()
-        self.started = datetime.utcnow()
 
     @Plugin.listen('Ready')
     def on_ready(self, event):
         """Fired when bot is ready, sets playing status"""
         self.client.update_presence(Status.online, Game(type=GameType.default, name=PLAYING_STATUS))
-
+        with self.send_control_message() as embed:
+            embed.title = 'Connected'
+            embed.color = 0x77dd77
 
     @Plugin.listen('MessageCreate')
     def on_message_create(self, event):
@@ -44,7 +43,6 @@ class CorePlugin(Plugin):
         else:
             guild_id = None
 
-        guild = self.bot.client.state.guilds.get(event.guild.id) if guild_id else None
         commands = list(self.bot.get_commands_for_message(
             self.bot.config.commands_require_mention,
             self.bot.config.commands_mention_rules,
@@ -68,7 +66,7 @@ class CorePlugin(Plugin):
                 command_event = CommandEvent(command, event.message, match)
                 command.plugin.execute(command_event)
             except:
-                tracked = Command.track(event, command, exception=True)
+
                 self.log.exception('Command error:')
 
                 with self.send_control_message() as embed:
@@ -76,16 +74,14 @@ class CorePlugin(Plugin):
                     embed.color = 0xff6961
                     embed.add_field(
                         name='Author', value='({}) `{}`'.format(event.author, event.author.id), inline=True)
-                    embed.add_field(name='Channel', value='({}) `{}`'.format(
-                        event.channel.name,
-                        event.channel.id
+                    embed.add_field(name='Channel', value='({}) `{}` in {}'.format(
+                        event.channel.name if event.guild else event.channel.recipients.itervalues().next(),
+                        event.channel.id,
+                        event.guild.name if event.guild else 'a DM'
                     ), inline=True)
-                    embed.description = '```{}```'.format(u'\n'.join(tracked.traceback.split('\n')[-8:]))
+                    embed.description = '```{}```'.format(u'\n'.join(traceback.format_exc().split('\n')[-8:]))
 
                 return event.reply('Something went wrong, perhaps try again another time!')
-
-            Command.track(event, command)
-
 
     @contextlib.contextmanager
     def send_control_message(self):
@@ -107,7 +103,7 @@ class CorePlugin(Plugin):
     def uptime_command(self, event):
         if check_global_admin(event.msg.author.id):
             event.msg.reply('Bot was started {} ago'.format(
-                humanize.naturaldelta(datetime.utcnow() - self.started)))
+                humanize.naturaldelta(datetime.utcnow() - STARTED)))
 
     @Plugin.command('reconnect')
     def reload_command(self, event):
