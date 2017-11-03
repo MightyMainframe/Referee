@@ -1,15 +1,17 @@
+from __future__ import absolute_import
+
 import os
+
+from peewee import OP, Expression, Model, Proxy
+from playhouse.postgres_ext import PostgresqlExtDatabase
+
 import psycogreen.gevent; psycogreen.gevent.patch_psycopg()
 
-from peewee import Proxy, OP, Model
-from peewee import Expression
-from playhouse.postgres_ext import PostgresqlExtDatabase
+ENV = os.getenv('ENV', 'local')
 
 REGISTERED_MODELS = []
 
-# Create a database proxy we can setup post-init
 database = Proxy()
-
 
 OP['IRGX'] = 'irgx'
 
@@ -54,7 +56,7 @@ def init_db(env):
 
 
 def reset_db():
-    init_db()
+    init_db(ENV)
 
     for model in REGISTERED_MODELS:
         model.drop_table(True)
