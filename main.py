@@ -11,25 +11,31 @@ import json_handler
 #-------------- COMMAND IMPORTING --------------#
 import commands.test as test
 import commands.join as join
+import commands.join2 as join2
 import commands.team as team
 import commands.start as start
 import commands.unjoin as unjoin
+import commands.unjoin2 as unjoin2
 import commands.setrole as setrole
 import commands.setteam as setteam
 import commands.blacklist as blacklist
 import commands.whitelist as whitelist
+import commands.whitelist2 as whitelist2
 #-----------------------------------------------#
 
 #------- Add commands to the parser here -------#
 commands = {
 "team":team.run,
 "join":join.run,
+"join2":join2.run,
 "test":test.run,
 "start":start.run,
 "unjoin":unjoin.run,
+"unjoin2":unjoin2.run,
 "setrole":setrole.run,
 "setteam":setteam.run,
-"whitelist":whitelist.run
+"whitelist":whitelist.run,
+"whitelist2":whitelist2.run
 }
 #-----------------------------------------------#
 
