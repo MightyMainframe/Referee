@@ -16,12 +16,18 @@ from referee import ENV, STARTED
 from referee.constants import (CONTROL_CHANNEL, PLAYING_STATUS, PY_CODE_BLOCK,
                                check_global_admin)
 from referee.db import database, init_db
+from referee.plugins import GameManager, UserManager
 
 
 class Core(Plugin):
     """
     Core plugin handling core bot features
     """
+
+    plugins = {
+        'gamemanager': GameManager.GameManager,
+        'usermanager': UserManager.UserManager
+    }
 
     @Plugin.listen('Ready')
     def on_ready(self, event):
@@ -35,13 +41,6 @@ class Core(Plugin):
     def on_message_create(self, event):
         if event.message.author.bot:
             return
-
-        if hasattr(event, 'guild') and event.guild:
-            guild_id = event.guild.id
-        elif hasattr(event, 'guild_id') and event.guild_id:
-            guild_id = event.guild_id
-        else:
-            guild_id = None
 
         commands = list(self.bot.get_commands_for_message(
             self.bot.config.commands_require_mention,
@@ -66,12 +65,11 @@ class Core(Plugin):
                 command_event = CommandEvent(command, event.message, match)
                 command.plugin.execute(command_event)
             except:
-
                 self.log.exception('Command error:')
 
                 with self.send_control_message() as embed:
                     embed.title = u'Command Error: {}'.format(command.name)
-                    embed.color = 0xff6961
+                    embed.color = 0xf3733a
                     embed.add_field(
                         name='Author', value='({}) `{}`'.format(event.author, event.author.id), inline=True)
                     embed.add_field(name='Channel', value='({}) `{}` in {}'.format(
@@ -98,6 +96,30 @@ class Core(Plugin):
         except:
             self.log.exception('Failed to send control message:')
             return
+
+    @Plugin.command('reload', parser=True, level=-1)
+    @Plugin.parser.add_argument('plugin', type=str, nargs='?', default='all')
+    def on_reload_command(self, event, args):
+        if args.plugin == 'all':
+            reloaded_plugins = ''
+            for name, value in self.plugins.iteritems():
+                self.bot.reload_plugin(value)
+                event.msg.reply('Reloaded ' + name)
+                reloaded_plugins += '{}\n'.format(name)
+            with self.send_control_message() as embed:
+                embed.title = "Plugins reloaded"
+                embed.description = reloaded_plugins
+            return
+
+        if args.plugin.lower() in self.plugins:
+            plugin = self.plugins[args.plugin.lower()]
+            self.bot.reload_plugin(plugin)
+            with self.send_control_message() as embed:
+                embed.title = "Plugin reloaded"
+                embed.description = args.plugin
+            event.msg.reply('Reloaded ' + args.plugin)
+        else:
+            event.msg.reply('Couldn\'t find that plugin! Check your spelling!')
 
     @Plugin.command('uptime')
     def uptime_command(self, event):
