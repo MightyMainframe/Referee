@@ -34,7 +34,6 @@ class BotSupervisor(object):
     def start(self):
         env = copy.deepcopy(os.environ)
         env.update(self.env)
-        init_db()
         self.proc = subprocess.Popen(['python', '-m', 'disco.cli', '--config', 'config.yaml'], env=env)
 
     def stop(self):

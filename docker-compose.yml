@@ -1,5 +1,17 @@
 version: '2'
 services:
+  db:
+    build: ./docker/database/
+    volumes:
+      - postgres:/var/lib/postgresql/data:rw
+  statsd:
+    image: python:2.7.13
+    volumes:
+      - .:/opt/referee
+    command: python /opt/referee/docker/nulld.py
+    ports:
+      - "8125:8125"
+    stop_signal: SIGKILL
   bot:
     build: .
     command: python manage.py bot -e docker
@@ -7,3 +19,8 @@ services:
       - .:/opt/referee
     ports:
       - "7171:7171"
+    depends_on:
+      - db
+      - statsd
+volumes:
+  postgres: {}

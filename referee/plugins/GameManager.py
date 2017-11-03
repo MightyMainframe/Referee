@@ -20,7 +20,7 @@ class GameManager(Plugin):
             ac = category.create_text_channel('announcements')
             ac.topic = desc
 
-        Game.new(name=name, desc=desc, ac=ac.id if ac else None)
+        Game.new(name=name, desc=desc, ac=ac.id if create_channels else None)
 
     @Plugin.command('add', group='game')
     def add_command(self, event):

@@ -11,6 +11,7 @@ from disco.bot import Bot, Plugin
 from disco.bot.command import CommandEvent
 from disco.types.message import MessageEmbed, MessageTable
 from disco.types.user import Game, GameType, Status
+from holster.emitter import Priority
 
 from referee import ENV, STARTED
 from referee.constants import (CONTROL_CHANNEL, PLAYING_STATUS, PY_CODE_BLOCK,
@@ -23,13 +24,15 @@ class Core(Plugin):
     """
     Core plugin handling core bot features
     """
+    def load(self, ctx):
+        init_db(ENV)
 
     plugins = {
         'gamemanager': GameManager.GameManager,
         'usermanager': UserManager.UserManager
     }
 
-    @Plugin.listen('Ready')
+    @Plugin.listen('Ready', priority=Priority.BEFORE)
     def on_ready(self, event):
         """Fired when bot is ready, sets playing status"""
         self.client.update_presence(Status.online, Game(type=GameType.default, name=PLAYING_STATUS))
@@ -121,22 +124,18 @@ class Core(Plugin):
         else:
             event.msg.reply('Couldn\'t find that plugin! Check your spelling!')
 
-    @Plugin.command('uptime')
+    @Plugin.command('uptime', level=-1)
     def uptime_command(self, event):
-        if check_global_admin(event.msg.author.id):
-            event.msg.reply('Bot was started {} ago'.format(
-                humanize.naturaldelta(datetime.utcnow() - STARTED)))
+        event.msg.reply('Bot was started {} ago'.format(
+            humanize.naturaldelta(datetime.utcnow() - STARTED)))
 
-    @Plugin.command('reconnect')
+    @Plugin.command('reconnect', level=-1)
     def reload_command(self, event):
-        if check_global_admin(event.msg.author.id):
-            event.msg.reply('Okay! Closing connection')
-            self.client.gw.ws.close()
+        event.msg.reply('Okay! Closing connection')
+        self.client.gw.ws.close()
 
-    @Plugin.command('sql')
+    @Plugin.command('sql', level=-1)
     def sql_command(self, event):
-        if not check_global_admin(event.msg.author.id):
-            return
         conn = database.obj.get_conn()
         try:
             tbl = MessageTable(codeblock=False)
@@ -160,10 +159,8 @@ class Core(Plugin):
         except psycopg2.Error as e:
             event.msg.reply('```{}```'.format(e.pgerror))
 
-    @Plugin.command('eval')
+    @Plugin.command('eval', level=-1)
     def eval_command(self, event):
-        if not check_global_admin(event.msg.author.id):
-            return
         ctx = {
             'self': self,
             'bot': self.bot,

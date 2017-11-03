@@ -1,5 +1,7 @@
-from peewee import (BigIntegerField, BooleanField, CharField, IntegerField,
-                    SmallIntegerField, TextField, DateTimeField)
+from datetime import datetime
+
+from peewee import (BigIntegerField, BooleanField, CharField, DateTimeField,
+                    IntegerField, SmallIntegerField, TextField)
 
 from referee.db import BaseModel
 from referee.util.input import parse_duration
@@ -12,6 +14,7 @@ class Game(BaseModel):
     desc = TextField()
     a_channel = BigIntegerField(null=True)
     interval = DateTimeField(null=True)
+    last_announcement = DateTimeField()
 
     class Meta:
         db_table = 'games'
@@ -23,6 +26,7 @@ class Game(BaseModel):
     def set_interval(self, interval):
         print 'Heck'
         interval = parse_duration(interval)
+        print interval
 
     @classmethod
     def new(cls, name, desc, ac=None):
@@ -30,7 +34,8 @@ class Game(BaseModel):
             name=name,
             desc=desc,
             a_channel=ac,
-            interval=None
+            interval=None,
+            last_announcement=datetime.utcnow()
         )
 
     @classmethod
