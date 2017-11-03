@@ -11,6 +11,9 @@ def write(name, data):
     elif name == "whitelist":
         with open("whitelist.json", "w") as file:
             file.write(json.dumps(data, indent=2))
+    elif name == "whitelist2":
+        with open("whitelist2.json", "w") as file:
+            file.write(json.dumps(data, indent=2))
 
 
 
@@ -25,5 +28,9 @@ def load(name):
         return teams
     elif name == "whitelist":
         with open("whitelist.json", "r") as file:
+            whitelist = json.load(file)
+        return whitelist
+    elif name == "whitelist2":
+        with open("whitelist2.json", "r") as file:
             whitelist = json.load(file)
         return whitelist
