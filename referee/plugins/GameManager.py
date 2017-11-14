@@ -2,32 +2,95 @@
 import gevent
 from disco.bot import Plugin
 
+from datetime import datetime, timedelta
+
 from referee.constants import GAME_ADD_STEPS, GAME_INFO_STEPS, check_global_admin
 from referee.models.game import Game
+from referee.util.input import parse_duration
+from referee.util.timing import Eventual
 
 
 class GameManager(Plugin):
     """Manages all game related bits"""
+    def load(self, ctx):
+        super(GameManager, self).load(ctx)
+        self.trigger_task = Eventual(self.trigger_schedule)
+        self.spawn_later(10, self.queue_triggers)
+
+    def queue_triggers(self):
+        try:
+            next_trigger = Game.select().order_by(
+                (Game.next_announcement).asc()
+            ).where(Game.next_announcement != None).limit(1).get()
+        except Game.DoesNotExist:
+            return
+
+        self.trigger_task.set_next_schedule(next_trigger.next_announcement)
+
+    def trigger_schedule(self):
+        games = Game.select().where(
+            Game.next_announcement < (datetime.utcnow() + timedelta(seconds=1))
+        )
+        for game in games:
+            message = game.a_message
+            channel = self.state.channels.get(game.a_channel)
+            if not channel:
+                self.log.warning('Not triggering announcement, channel %s was not found!',
+                                 game.a_channel)
+            channel.send_message(message)
+            game.set_interval(game.interval)
+        self.queue_triggers()
+
+
     def add_game(self, event, name, desc, create_channels=False):
         """
         Sets up a new game
         """
         if create_channels:
-            #Create channels
             channel_name = name.replace(' ', '-')
             guild = event.msg.guild
             category = guild.create_category(channel_name)
-            ac = category.create_text_channel('announcements')
-            ac.topic = desc
+            a_channel = category.create_text_channel('announcements')
+            a_channel.topic = desc
 
-        Game.new(name=name, desc=desc, ac=ac.id if create_channels else None)
+        Game.new(name=name, desc=desc, ac=a_channel.id if create_channels else None)
 
-    @Plugin.command('add', group='game')
-    def add_command(self, event):
-        """Gets all info required for creation a new game"""
-        if not check_global_admin(event.msg.author.id):
+    @Plugin.command('set', '<game:str>, <key:str>, <value:str...>', group='g', level=-1)
+    def set_command(self, event, game, key, value):
+        game = game.replace('_', ' ')
+        game = Game.get_game_by_name(game)
+        if not game:
+            return event.msg.reply('Game not found, check your spelling and try again')
+        if key == 'a_m' or key == 'a_message':
+            query = Game.update(a_message=value)
+        elif key == 'a_c' or key == 'a_channel':
+            query = Game.update(a_channel=value)
+        else:
+            return event.msg.reply('Invalid key, check your spelling and try again')
+        query.where(Game.name == game.name).execute()
+        return event.msg.reply('Okay! Set value {} for key {} on {}'.format(value, key, game.name))
+
+    @Plugin.command('schedule', '<game:str>, <interval:str>', group='game', level=-1)
+    def schedule_command(self, event, game, interval):
+        game = Game.get_game_by_name(game)
+        if not game:
+            event.msg.reply('Game not found, check your spelling and try again')
             return
+        if interval == 'clear':
+            game.clear_interval()
+            event.msg.reply('Cleared interval for {}'.format(game.name))
+            self.queue_triggers()
+            return
+        if not game.a_channel or not game.a_message:
+            event.msg.reply('Please be sure to set an announcement message and channel first!')
+            return
+        game.set_interval(interval)
+        event.msg.reply('Okay! Set interval {} for {}'.format(interval, game.name))
+        self.queue_triggers()
 
+    @Plugin.command('add', group='game', level=-1)
+    def add_command(self, event):
+        """Gets all info required for creating a new game"""
         messages_to_delete = []
 
         def remove_messages():

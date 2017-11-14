@@ -24,6 +24,9 @@ class Core(Plugin):
     """
     Core plugin handling core bot features
     """
+
+    BOT_DESC = 'Referee is a bot built to manage gaming communities'
+
     def load(self, ctx):
         init_db(ENV)
 
@@ -100,6 +103,17 @@ class Core(Plugin):
             self.log.exception('Failed to send control message:')
             return
 
+    @Plugin.command('about')
+    def about_command(self, event):
+        embed = MessageEmbed()
+        embed.set_author(name='Referee', icon_url=self.client.state.me.avatar_url, url='https://rowboat.party/')
+        embed.description = self.BOT_DESC
+        embed.add_field(name='Uptime', value=humanize.naturaldelta(datetime.utcnow() - STARTED), inline=True)
+        embed.description = self.BOT_DESC
+        embed.color = 0xf3733a
+
+        event.msg.reply(embed=embed)
+
     @Plugin.command('reload', parser=True, level=-1)
     @Plugin.parser.add_argument('plugin', type=str, nargs='?', default='all')
     def on_reload_command(self, event, args):
@@ -144,16 +158,19 @@ class Core(Plugin):
                 start = time.time()
                 cur.execute(event.codeblock.format(e=event))
                 dur = time.time() - start
-                tbl.set_header(*[desc[0] for desc in cur.description])
+                if cur.description:
+                    tbl.set_header(*[desc[0] for desc in cur.description])
 
-                for row in cur.fetchall():
-                    tbl.add(*row)
+                    for row in cur.fetchall():
+                        tbl.add(*row if row else '')
 
                 result = tbl.compile()
                 if len(result) > 1900:
                     return event.msg.reply(
                         '_took {}ms_'.format(int(dur * 1000)),
                         attachments=[('result.txt', result)])
+                elif len(result) == 0:
+                    result = '\n'
 
                 event.msg.reply('```' + result + '```\n_took {}ms_\n'.format(int(dur * 1000)))
         except psycopg2.Error as e:

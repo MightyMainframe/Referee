@@ -12,7 +12,7 @@ UNITS = {
 def parse_duration(raw, source=None, negative=False):
     if not raw:
         raise CommandError('Invalid Duration')
-    
+
     value = 0
     digits = ''
 
@@ -23,11 +23,11 @@ def parse_duration(raw, source=None, negative=False):
 
         if char not in UNITS or not digits:
             raise CommandError('Invalid Duration')
-        
+
         value += UNITS[char](int(digits))
         digits = ''
 
     if negative:
         value = value * -1
 
-        return (source or datetime.utcnow + timedelta(seconds=value+1))
+    return source or datetime.utcnow() + timedelta(seconds=value+1)
