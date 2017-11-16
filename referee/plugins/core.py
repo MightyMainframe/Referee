@@ -143,6 +143,14 @@ class Core(Plugin):
         event.msg.reply('Bot was started {} ago'.format(
             humanize.naturaldelta(datetime.utcnow() - STARTED)))
 
+    @Plugin.command('ping', level=-1)
+    def ping_command(self, event):
+        recieved = datetime.utcnow()
+        msg = event.msg.reply('Pinging!')
+        replied = datetime.utcnow()
+        diff = (replied - recieved)
+        msg.edit('Pong! Took {} ms!'.format(diff.microseconds / 1000))
+
     @Plugin.command('reconnect', level=-1)
     def reload_command(self, event):
         event.msg.reply('Okay! Closing connection')
