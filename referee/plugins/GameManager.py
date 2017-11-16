@@ -1,6 +1,7 @@
 """Manages all game related bits"""
 import gevent
 from disco.bot import Plugin
+from disco.util.snowflake import to_snowflake
 
 from datetime import datetime, timedelta
 
@@ -73,6 +74,17 @@ class GameManager(Plugin):
             query = Game.update(a_message=value)
         elif key == 'a_c' or key == 'a_channel':
             query = Game.update(a_channel=value)
+        elif key == 'alias':
+            if ' ' in value:
+                return event.msg.reply('Alias can\'t contain spaces!')
+            query = Game.update(alias=value)
+        elif key == 'role':
+            try:
+                role = to_snowflake(value)
+            except:
+                return
+            else:
+                query = Game.update(join_role=role)
         else:
             return event.msg.reply('Invalid key, check your spelling and try again')
         query.where(Game.name == game.name).execute()
