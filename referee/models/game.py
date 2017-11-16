@@ -14,7 +14,9 @@ from referee.util.input import parse_duration
 class Game(BaseModel):
     """Game Object"""
     name = CharField()
+    alias = CharField()
     desc = TextField()
+    join_role = BigIntegerField(null=True)
     a_channel = BigIntegerField(null=True)
     a_message = CharField(null=True)
     next_announcement = DateTimeField(null=True)
@@ -78,7 +80,9 @@ class Game(BaseModel):
     def new(cls, name, desc, ac=None):
         return cls.create(
             name=name,
+            alias=name.replace(' ', '_'),
             desc=desc,
+            join_role=None,
             a_channel=ac,
             a_message=None,
             interval=None,
