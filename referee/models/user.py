@@ -27,12 +27,11 @@ class User(BaseModel):
 
     @classmethod
     def get_user_by_id(cls, u_id):
-        users = User.select().where(
-            User.user_id == u_id
-        ).execute()
         try:
-            user = users.next()
-        except StopIteration:
+            user = User.select().where(
+                User.user_id == u_id
+            ).limit(1).get()
+        except User.DoesNotExist:
             raise AttributeError('User not found!')
         return user
 
