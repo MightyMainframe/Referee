@@ -55,6 +55,14 @@ class GameManager(Plugin):
 
         Game.new(name=name, desc=desc, ac=a_channel.id if create_channels else None)
 
+    @Plugin.command('join', '<game:str>', level=-1)
+    def join_command(self, event, game):
+        game = game.replace('_', ' ')
+        game = Game.get_game_by_name(game)
+        if not game:
+            return event.msg.reply('Game not found, check your spelling and try again')
+        return game.execute_join(event)
+
     @Plugin.command('set', '<game:str>, <key:str>, <value:str...>', group='g', level=-1)
     def set_command(self, event, game, key, value):
         game = game.replace('_', ' ')
