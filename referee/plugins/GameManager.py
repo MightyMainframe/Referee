@@ -2,10 +2,11 @@
 import gevent
 from disco.bot import Plugin
 from disco.util.snowflake import to_snowflake
+from disco.types.channel import PermissionOverwrite, PermissionOverwriteType, ChannelType
 
 from datetime import datetime, timedelta
 
-from referee.constants import GAME_ADD_STEPS, GAME_INFO_STEPS, check_global_admin
+from referee.constants import GAME_ADD_STEPS, GAME_INFO_STEPS, check_global_admin, TEAM_CATEGORY
 from referee.models.game import Game
 from referee.util.input import parse_duration
 from referee.util.timing import Eventual
@@ -55,6 +56,47 @@ class GameManager(Plugin):
             a_channel.topic = desc
 
         Game.new(name=name, desc=desc, ac=a_channel.id if create_channels else None)
+
+    @Plugin.command('clear', group='teams', level=-1)
+    def clear_command(self, event):
+        team_channels = []
+        channels = self.bot.client.state.channels
+        for channel in channels:
+            channel = self.bot.client.state.channels.get(channel)
+            if channel.parent:
+                if channel.parent.id == TEAM_CATEGORY:
+                    team_channels.append(channel)
+        for channel in team_channels:
+            for overwrite in channel.overwrites.values():
+                if overwrite.type == PermissionOverwriteType.member:
+                    overwrite.delete()
+        event.msg.reply('Cleared teams!')
+
+
+    @Plugin.command('team', '<name:str>', level=-1)
+    def team_command(self, event, name):
+        name = name.replace('_', ' ').lower()
+        team_channels = []
+        channels = self.bot.client.state.channels
+        for channel in channels:
+            channel = self.bot.client.state.channels.get(channel)
+            if channel.parent:
+                if channel.parent.id == TEAM_CATEGORY and channel.type == ChannelType.guild_voice:
+                    team_channels.append(channel)
+        teams = {}
+        for channel in team_channels:
+            c_name = channel.name.lower()
+            t_name = c_name.replace(' team', '')
+            teams[t_name] = channel
+        if name not in teams.keys():
+            team_names = ''
+            for team_name in teams:
+                team_names += '{}\n'.format(team_name)
+            return event.msg.reply('Non existant team! Choose from: ```{}```'.format(team_names))
+
+        PermissionOverwrite.create_for_channel(teams[name], event.msg.author, allow=36701184)
+        return event.msg.reply('Added {} to team {}'.format(event.msg.author.mention, name))
+
 
     @Plugin.command('join', '<game:str>', level=-1)
     def join_command(self, event, game):

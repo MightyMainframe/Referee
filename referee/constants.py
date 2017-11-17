@@ -10,6 +10,7 @@ CONTROL_CHANNEL = 375605052171354122
 PLAYING_STATUS = 'Managing all the things'
 GLOBAL_ADMINS = [188918216008007680, 134146475591467008, 125793782665969664]
 PY_CODE_BLOCK = u'```py\n{}\n```'
+TEAM_CATEGORY = 355983461825380352
 GAME_INFO_STEPS = OrderedDict([
     ('get_name', 'Okay, please give the name of the new game'),
     ('get_desc', 'Okay, created the game. now, give a description for the game'),
