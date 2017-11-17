@@ -17,7 +17,8 @@ from referee import ENV, STARTED
 from referee.constants import (CONTROL_CHANNEL, PLAYING_STATUS, PY_CODE_BLOCK,
                                check_global_admin)
 from referee.db import database, init_db
-from referee.plugins import GameManager, UserManager
+from referee.plugins.GameManager import GameManager
+from referee.plugins.UserManager import UserManager
 
 
 class Core(Plugin):
@@ -31,8 +32,8 @@ class Core(Plugin):
         init_db(ENV)
 
     plugins = {
-        'gamemanager': GameManager.GameManager,
-        'usermanager': UserManager.UserManager
+        'gamemanager': GameManager,
+        'usermanager': UserManager
     }
 
     @Plugin.listen('Ready', priority=Priority.BEFORE)
