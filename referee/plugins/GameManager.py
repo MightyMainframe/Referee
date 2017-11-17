@@ -1,13 +1,15 @@
 """Manages all game related bits"""
-import gevent
-from disco.bot import Plugin
-from disco.util.snowflake import to_snowflake
-from disco.types.channel import PermissionOverwrite, PermissionOverwriteType, ChannelType
-
 from datetime import datetime, timedelta
 
-from referee.constants import GAME_ADD_STEPS, GAME_INFO_STEPS, check_global_admin, TEAM_CATEGORY
-from referee.models.game import Game
+import gevent
+from disco.bot import Plugin
+from disco.types.channel import (ChannelType, PermissionOverwrite,
+                                 PermissionOverwriteType)
+from disco.util.snowflake import to_snowflake
+
+from referee.constants import (GAME_ADD_STEPS, GAME_INFO_STEPS, TEAM_CATEGORY,
+                               check_global_admin)
+from referee.models.game import ExecType, Game
 from referee.util.input import parse_duration
 from referee.util.timing import Eventual
 
@@ -138,6 +140,20 @@ class GameManager(Plugin):
             return event.msg.reply('Invalid key, check your spelling and try again')
         query.where(Game.name == game.name).execute()
         return event.msg.reply('Okay! Set value {} for key {} on {}'.format(value, key, game.name))
+
+    @Plugin.command('set', '<src_type:str>, <game:str>', group='code', level=-1)
+    def code_set_command(self, event, src_type, game):
+        game = game.replace('_', ' ')
+        game = Game.get_game_by_name(game) # type: Game
+        src = event.codeblock
+        if src_type == 'join':
+            game.set_exec_code(src)
+            event.msg.reply('Okay! Set ```{}``` as join code for {}'.format(src, game.name))
+        elif src_type == 'start':
+            game.set_exec_code(src, exec_type=ExecType.start)
+            event.msg.reply('Okay! Set ```{}``` as start code for {}'.format(src, game.name))
+        else:
+            event.msg.reply('Either `!code set join` or `!code set start`')
 
     @Plugin.command('schedule', '<game:str>, <interval:str>', group='game', level=-1)
     def schedule_command(self, event, game, interval):

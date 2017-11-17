@@ -37,6 +37,7 @@ class Game(BaseModel):
 
     def execute(self, event, exec_type=ExecType.join):
         ctx = {
+            'self': self,
             'event': event,
             'msg': event.msg,
             'guild': event.msg.guild,
@@ -48,9 +49,9 @@ class Game(BaseModel):
         elif exec_type == ExecType.start:
             src = '{}'.format(self.play_src)
         else:
-            src = 'event.msg.reply(\'Something went wrong\')'
+            src = 'event.msg.reply(\'Invalid exec type provided\')'
         if src == '' or src == 'None':
-            src = 'event.msg.reply(\'Something went wrong\')'
+            src = 'event.msg.reply(\'No source provided\')'
         lines = filter(bool, src.split('\n'))
         if lines[-1] and 'return' not in lines[-1]:
             lines[-1] = 'return ' + lines[-1]
@@ -62,13 +63,6 @@ class Game(BaseModel):
         except Exception as e:
             event.msg.reply(PY_CODE_BLOCK.format(type(e).__name__ + ': ' + str(e)))
             return
-        result = pprint.pformat(local['x'])
-
-        if exec_type == ExecType.join:
-            if len(result) > 1990:
-                event.msg.reply('', attachments=[('result.txt', result)])
-            else:
-                event.msg.reply(PY_CODE_BLOCK.format(result))
 
     def set_exec_code(self, code, exec_type=ExecType.join):
         if exec_type == ExecType.join:
@@ -112,7 +106,7 @@ class Game(BaseModel):
             interval=None,
             last_announcement=datetime.utcnow(),
             next_announcement=None,
-            attendees=[],
+            attendees=[369414359727734786],
             join_src=None,
             play_src=None
         )
@@ -124,4 +118,9 @@ class Game(BaseModel):
                 Game.name == name
             ).limit(1).get()
         except Game.DoesNotExist:
-            return None
+            try:
+                return Game.select().where(
+                    Game.alias == name
+                ).limit(1).get()
+            except:
+                return None
