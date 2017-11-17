@@ -97,6 +97,13 @@ class GameManager(Plugin):
         PermissionOverwrite.create_for_channel(teams[name], event.msg.author, allow=36701184)
         return event.msg.reply('Added {} to team {}'.format(event.msg.author.mention, name))
 
+    @Plugin.command('start', '<game:str>', level=-1)
+    def start_command(self, event, game):
+        game = game.replace('_', ' ')
+        game = Game.get_game_by_name(game)
+        if not game:
+            return event.msg.reply('Game not found, check your spelling and try again')
+        return game.execute(event, exec_type='start')
 
     @Plugin.command('join', '<game:str>', level=-1)
     def join_command(self, event, game):
@@ -104,7 +111,7 @@ class GameManager(Plugin):
         game = Game.get_game_by_name(game)
         if not game:
             return event.msg.reply('Game not found, check your spelling and try again')
-        return game.execute_join(event)
+        return game.execute(event)
 
     @Plugin.command('set', '<game:str>, <key:str>, <value:str...>', group='g', level=-1)
     def set_command(self, event, game, key, value):

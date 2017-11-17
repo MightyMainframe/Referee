@@ -1,6 +1,7 @@
 import pprint
 from datetime import datetime
 
+from holster.enum import Enum
 from peewee import (BigIntegerField, BooleanField, CharField, DateTimeField,
                     IntegerField, SmallIntegerField, TextField)
 from playhouse.postgres_ext import ArrayField, JSONField
@@ -8,6 +9,11 @@ from playhouse.postgres_ext import ArrayField, JSONField
 from referee.constants import PY_CODE_BLOCK
 from referee.db import BaseModel
 from referee.util.input import parse_duration
+
+ExecType = Enum(
+    JOIN='join',
+    START='start'
+)
 
 
 @BaseModel.register
@@ -29,7 +35,7 @@ class Game(BaseModel):
     class Meta:
         db_table = 'games'
 
-    def execute_join(self, event):
+    def execute(self, event, exec_type=ExecType.join):
         ctx = {
             'event': event,
             'msg': event.msg,
@@ -37,7 +43,14 @@ class Game(BaseModel):
             'channel': event.msg.channel,
             'author': event.msg.author
         }
-        src = '{}'.format(self.join_src)
+        if exec_type == ExecType.join:
+            src = '{}'.format(self.join_src)
+        elif exec_type == ExecType.start:
+            src = '{}'.format(self.play_src)
+        else:
+            src = 'event.msg.reply(\'Something went wrong\')'
+        if src == '' or src == 'None':
+            src = 'event.msg.reply(\'Something went wrong\')'
         lines = filter(bool, src.split('\n'))
         if lines[-1] and 'return' not in lines[-1]:
             lines[-1] = 'return ' + lines[-1]
@@ -51,10 +64,20 @@ class Game(BaseModel):
             return
         result = pprint.pformat(local['x'])
 
-        if len(result) > 1990:
-            event.msg.reply('', attachments=[('result.txt', result)])
+        if exec_type == ExecType.join:
+            if len(result) > 1990:
+                event.msg.reply('', attachments=[('result.txt', result)])
+            else:
+                event.msg.reply(PY_CODE_BLOCK.format(result))
+
+    def set_exec_code(self, code, exec_type=ExecType.join):
+        if exec_type == ExecType.join:
+            query = Game.update(join_src=code)
+        elif exec_type == ExecType.start:
+            query = Game.update(play_src=code)
         else:
-            event.msg.reply(PY_CODE_BLOCK.format(result))
+            return
+        query.where(Game.name == self.name).execute()
 
     def set_announcement_channel(self, a_channel):
         query = Game.update(a_channel=a_channel)
@@ -73,6 +96,7 @@ class Game(BaseModel):
             next_announcement = parse_duration(interval)
         except:
             print 'Ermahgerd! Something sploded'
+            return
         query = Game.update(next_announcement=next_announcement, interval=interval)
         query.where(Game.name == self.name).execute()
 
