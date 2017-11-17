@@ -14,6 +14,10 @@ ExecType = Enum(
     JOIN='join',
     START='start'
 )
+ExecMode = Enum(
+    REACTION='reaction',
+    COMMAND='command'
+)
 
 
 @BaseModel.register
@@ -35,21 +39,22 @@ class Game(BaseModel):
     class Meta:
         db_table = 'games'
 
-    def execute(self, event, exec_type=ExecType.join):
+    def execute(self, event, exec_type=ExecType.join, mode=ExecMode.command):
         ctx = {
-            'self': self,
-            'event': event,
-            'msg': event.msg,
-            'guild': event.msg.guild,
-            'channel': event.msg.channel,
-            'author': event.msg.author
+            'self': self
         }
+        if mode == ExecMode.command:
+            ctx['user_id'] = event.msg.author.id
+        else:
+            ctx['user_id'] = event.user_id
+
         if exec_type == ExecType.join:
             src = '{}'.format(self.join_src)
         elif exec_type == ExecType.start:
             src = '{}'.format(self.play_src)
         else:
             src = 'event.msg.reply(\'Invalid exec type provided\')'
+
         if src == '' or src == 'None':
             src = 'event.msg.reply(\'No source provided\')'
         lines = filter(bool, src.split('\n'))
@@ -61,8 +66,17 @@ class Game(BaseModel):
         try:
             exec compile(code, '<eval>', 'exec') in ctx, local
         except Exception as e:
-            event.msg.reply(PY_CODE_BLOCK.format(type(e).__name__ + ': ' + str(e)))
-            return
+            if mode == ExecMode.command:
+                event.msg.reply(PY_CODE_BLOCK.format(type(e).__name__ + ': ' + str(e)))
+                return
+            else:
+                return PY_CODE_BLOCK.format(type(e).__name__ + ': ' + str(e))
+        result = pprint.pformat(local['x'])
+        if mode == ExecMode.command:
+            event.msg.reply(result)
+        else:
+            return result
+
 
     def set_exec_code(self, code, exec_type=ExecType.join):
         if exec_type == ExecType.join:
