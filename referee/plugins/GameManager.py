@@ -111,7 +111,7 @@ class GameManager(Plugin):
         channels = self.bot.client.state.channels
         for channel in channels:
             channel = self.bot.client.state.channels.get(channel)
-            if channel.parent:
+            if channel.guild and channel.parent:
                 if channel.parent.id == TEAM_CATEGORY:
                     team_channels.append(channel)
         for channel in team_channels:
