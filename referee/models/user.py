@@ -17,9 +17,7 @@ class User(BaseModel):
 
     @classmethod
     def get_metadata_fields(cls):
-        s = ''
-        for field in cls.metadata_fields:
-            s = s + field + ', '
+        s = ', '.join(cls.metadata_fields)
         return s
 
     class Meta:

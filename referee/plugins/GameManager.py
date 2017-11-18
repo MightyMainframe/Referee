@@ -8,8 +8,7 @@ from disco.types.channel import (ChannelType, PermissionOverwrite,
 from disco.util.snowflake import to_snowflake
 
 from referee.constants import (EMOJIS, GAME_ADD_STEPS, GAME_INFO_STEPS,
-                               REACTIONS_MESSAGE, TEAM_CATEGORY,
-                               check_global_admin)
+                               REACTIONS_MESSAGE, TEAM_CATEGORY, CommandLevel)
 from referee.models.game import ExecMode, ExecType, Game
 from referee.util.input import parse_duration
 from referee.util.timing import Eventual
@@ -82,7 +81,7 @@ class GameManager(Plugin):
         PermissionOverwrite.create_for_channel(teams[name], user, allow=36701184)
         return 'Added {} to team {}'.format(user.mention, name)
 
-    @Plugin.command('team', '<name:str>', level=-1)
+    @Plugin.command('team', '<name:str>', level=CommandLevel.DEV)
     def team_command(self, event, name):
         name = name.replace('_', ' ').lower()
         event.msg.reply(self.join_team(name, event.msg.author))
@@ -105,7 +104,7 @@ class GameManager(Plugin):
         event.guild.members[event.user_id].user.open_dm().send_message(reply)
         event.delete()
 
-    @Plugin.command('clear', group='teams', level=-1)
+    @Plugin.command('clear', group='teams', level=CommandLevel.MOD)
     def clear_command(self, event):
         team_channels = []
         channels = self.bot.client.state.channels
@@ -120,7 +119,7 @@ class GameManager(Plugin):
                     overwrite.delete()
         event.msg.reply('Cleared teams!')
 
-    @Plugin.command('start', '<game:str>', level=-1)
+    @Plugin.command('start', '<game:str>', level=CommandLevel.MOD)
     def start_command(self, event, game):
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game)
@@ -128,7 +127,7 @@ class GameManager(Plugin):
             return event.msg.reply('Game not found, check your spelling and try again')
         return game.execute(event, exec_type='start')
 
-    @Plugin.command('join', '<game:str>', level=-1)
+    @Plugin.command('join', '<game:str>', level=CommandLevel.DEV)
     def join_command(self, event, game):
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game)
@@ -136,7 +135,7 @@ class GameManager(Plugin):
             return event.msg.reply('Game not found, check your spelling and try again')
         return game.execute(event)
 
-    @Plugin.command('set', '<game:str>, <key:str>, <value:str...>', group='g', level=-1)
+    @Plugin.command('set', '<game:str>, <key:str>, <value:str...>', group='g', level=CommandLevel.MOD)
     def set_command(self, event, game, key, value):
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game)

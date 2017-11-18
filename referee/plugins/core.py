@@ -15,7 +15,7 @@ from holster.emitter import Priority
 
 from referee import ENV, STARTED
 from referee.constants import (CONTROL_CHANNEL, PLAYING_STATUS, PY_CODE_BLOCK,
-                               check_global_admin)
+                               check_global_admin, get_user_level, CommandLevel)
 from referee.db import database, init_db
 from referee.plugins import GameManager, UserManager
 
@@ -60,11 +60,13 @@ class Core(Plugin):
 
         global_admin = check_global_admin(event.author.id)
 
+        user_level = get_user_level(event.guild.members[event.author.id])
+
         for command, match in commands:
             if command.level == -1 and not global_admin:
                 continue
 
-            if not self.bot.check_command_permissions(command, event):
+            if not global_admin and command.level > user_level:
                 continue
 
             try:
@@ -138,12 +140,12 @@ class Core(Plugin):
         else:
             event.msg.reply('Couldn\'t find that plugin! Check your spelling!')
 
-    @Plugin.command('uptime', level=-1)
+    @Plugin.command('uptime', level=CommandLevel.MOD)
     def uptime_command(self, event):
         event.msg.reply('Bot was started {} ago'.format(
             humanize.naturaldelta(datetime.utcnow() - STARTED)))
 
-    @Plugin.command('ping', level=-1)
+    @Plugin.command('ping', level=CommandLevel.MOD)
     def ping_command(self, event):
         recieved = datetime.utcnow()
         msg = event.msg.reply('Pinging!')
