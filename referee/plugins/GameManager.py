@@ -83,6 +83,7 @@ class GameManager(Plugin):
 
     @Plugin.command('team', '<name:str>', level=CommandLevel.DEV)
     def team_command(self, event, name):
+        """Adds a user to a team"""
         name = name.replace('_', ' ').lower()
         event.msg.reply(self.join_team(name, event.msg.author))
 
@@ -106,6 +107,7 @@ class GameManager(Plugin):
 
     @Plugin.command('clear', group='teams', level=CommandLevel.MOD)
     def clear_command(self, event):
+        """Resets all teams"""
         team_channels = []
         channels = self.bot.client.state.channels
         for channel in channels:
@@ -121,6 +123,7 @@ class GameManager(Plugin):
 
     @Plugin.command('start', '<game:str>', level=CommandLevel.MOD)
     def start_command(self, event, game):
+        """Executes starting code for a game"""
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game)
         if not game:
@@ -129,6 +132,7 @@ class GameManager(Plugin):
 
     @Plugin.command('join', '<game:str>', level=CommandLevel.DEV)
     def join_command(self, event, game):
+        """Adds a user to a game"""
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game)
         if not game:
@@ -137,6 +141,7 @@ class GameManager(Plugin):
 
     @Plugin.command('set', '<game:str>, <key:str>, <value:str...>', group='g', level=CommandLevel.MOD)
     def set_command(self, event, game, key, value):
+        """Sets a value on a game"""
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game)
         if not game:
@@ -163,6 +168,7 @@ class GameManager(Plugin):
 
     @Plugin.command('set', '<src_type:str>, <game:str>', group='code', level=-1)
     def code_set_command(self, event, src_type, game):
+        """Sets join or start source for a game"""
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game) # type: Game
         src = event.codeblock
@@ -177,6 +183,7 @@ class GameManager(Plugin):
 
     @Plugin.command('schedule', '<game:str>, <interval:str>', group='game', level=-1)
     def schedule_command(self, event, game, interval):
+        """Sets schedule for a game"""
         game = Game.get_game_by_name(game)
         if not game:
             event.msg.reply('Game not found, check your spelling and try again')

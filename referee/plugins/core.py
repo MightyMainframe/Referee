@@ -105,10 +105,47 @@ class Core(Plugin):
             self.log.exception('Failed to send control message:')
             return
 
+    @Plugin.command('commands')
+    def commands_command(self, event):
+        """Get a list of commands you can use with the bot"""
+        embed = MessageEmbed()
+        embed.set_author(
+            name='Referee Commands',
+            url='https://github.com/UHCBot/Referee',
+            icon_url=self.client.state.me.avatar_url
+        )
+        embed.color = 0xf3733a
+        for p in self.bot.plugins.values():
+            for c in p.commands:
+                args = []
+                if c.args:
+                    for arg in c.args.args:
+                        args.append(arg.name)
+                user_level = get_user_level(event.guild.members[event.msg.author.id])
+                global_admin = check_global_admin(event.msg.author.id)
+                if c.level:
+                    if not global_admin and c.level == -1:
+                        continue
+                    if not global_admin and c.level > user_level:
+                        continue
+                embed.add_field(
+                    name='{}{}'.format(
+                        c.group + ' ' if c.group else '', c.name),
+                    value='Level: {} {}\nArgs: {}\nDescription: {}'.format(
+                        c.level if c.level else 'Everyone',
+                        'or higher' if c.level and c.level != -1 else '',
+                        ', '.join(args) if args != [] else 'None',
+                        c.get_docstring() if c.get_docstring() else 'No description provided'
+                    ).replace('-1', 'Global admin').replace('mod', 'Mod').replace('dev', 'Dev'),
+                    inline=True
+                    )
+        event.msg.reply('', embed=embed)
+
     @Plugin.command('about')
     def about_command(self, event):
+        """Gets some basic info about the bot"""
         embed = MessageEmbed()
-        embed.set_author(name='Referee', icon_url=self.client.state.me.avatar_url, url='https://rowboat.party/')
+        embed.set_author(name='Referee', icon_url=self.client.state.me.avatar_url, url='https://github.com/UHCBot/Referee')
         embed.description = self.BOT_DESC
         embed.add_field(name='Uptime', value=humanize.naturaldelta(datetime.utcnow() - STARTED), inline=True)
         embed.description = self.BOT_DESC
@@ -119,6 +156,7 @@ class Core(Plugin):
     @Plugin.command('reload', parser=True, level=-1)
     @Plugin.parser.add_argument('plugin', type=str, nargs='?', default='all')
     def on_reload_command(self, event, args):
+        """Reloads a plugin"""
         if args.plugin == 'all':
             reloaded_plugins = ''
             for name, value in self.plugins.iteritems():
@@ -142,11 +180,13 @@ class Core(Plugin):
 
     @Plugin.command('uptime', level=CommandLevel.MOD)
     def uptime_command(self, event):
+        """Gets the bots uptime"""
         event.msg.reply('Bot was started {} ago'.format(
             humanize.naturaldelta(datetime.utcnow() - STARTED)))
 
     @Plugin.command('ping', level=CommandLevel.MOD)
     def ping_command(self, event):
+        """Tests bots ping"""
         recieved = datetime.utcnow()
         msg = event.msg.reply('Pinging!')
         replied = datetime.utcnow()
@@ -155,6 +195,7 @@ class Core(Plugin):
 
     @Plugin.command('reconnect', level=-1)
     def reload_command(self, event):
+        """Reconnects the bot"""
         event.msg.reply('Okay! Closing connection')
         self.client.gw.ws.close()
 
