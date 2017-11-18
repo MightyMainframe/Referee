@@ -1,0 +1,10 @@
+'token': ''
+
+bot:
+  plugins:
+    - referee.plugins.core
+    - referee.plugins.GameManager
+    - referee.plugins.UserManager
+  commands_require_mention: false
+  commands_prefix: '!'
+  commands_enabled: false
