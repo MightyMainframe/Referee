@@ -13,15 +13,14 @@ from referee.models.game import ExecMode, ExecType, Game
 from referee.util.input import parse_duration
 from referee.util.timing import Eventual
 
-
 class GameManager(Plugin):
     """Manages all game related bits"""
     def load(self, ctx):
         super(GameManager, self).load(ctx)
-        self.trigger_task = Eventual(self.trigger_schedule)
-        self.spawn_later(10, self.queue_triggers)
+        self.announce_task = Eventual(self.trigger_announcement)
+        self.spawn_later(10, self.queue_announcements)
 
-    def queue_triggers(self):
+    def queue_announcements(self):
         try:
             next_trigger = Game.select().order_by(
                 (Game.next_announcement).asc()
@@ -29,9 +28,9 @@ class GameManager(Plugin):
         except Game.DoesNotExist:
             return
 
-        self.trigger_task.set_next_schedule(next_trigger.next_announcement)
+        self.announce_task.set_next_schedule(next_trigger.next_announcement)
 
-    def trigger_schedule(self):
+    def trigger_announcement(self):
         games = Game.select().where(
             Game.next_announcement < (datetime.utcnow() + timedelta(seconds=1))
         )
@@ -43,7 +42,7 @@ class GameManager(Plugin):
                                  game.a_channel)
             channel.send_message(message)
             game.set_interval(game.interval)
-        self.queue_triggers()
+        self.queue_announcements()
 
 
     def add_game(self, event, name, desc, create_channels=False):
@@ -149,7 +148,12 @@ class GameManager(Plugin):
         if key == 'a_m' or key == 'a_message':
             query = Game.update(a_message=value)
         elif key == 'a_c' or key == 'a_channel':
-            query = Game.update(a_channel=value)
+            try:
+                value = to_snowflake(value)
+            except:
+                return
+            else:
+                query = Game.update(a_channel=value)
         elif key == 'alias':
             if ' ' in value:
                 return event.msg.reply('Alias can\'t contain spaces!')
@@ -161,6 +165,13 @@ class GameManager(Plugin):
                 return
             else:
                 query = Game.update(join_role=role)
+        elif key == 'time_msg':
+            try:
+                message = to_snowflake(value)
+            except:
+                return
+            else:
+                query = Game.update(time_message=message)
         else:
             return event.msg.reply('Invalid key, check your spelling and try again')
         query.where(Game.name == game.name).execute()
@@ -222,14 +233,14 @@ class GameManager(Plugin):
         if interval == 'clear':
             game.clear_interval()
             event.msg.reply('Cleared interval for {}'.format(game.name))
-            self.queue_triggers()
+            self.queue_announcements()
             return
         if not game.a_channel or not game.a_message:
             event.msg.reply('Please be sure to set an announcement message and channel first!')
             return
         game.set_interval(interval)
         event.msg.reply('Okay! Set interval {} for {}'.format(interval, game.name))
-        self.queue_triggers()
+        self.queue_announcements()
 
     @Plugin.command('add', group='game', level=-1)
     def add_command(self, event):

@@ -27,6 +27,7 @@ class Game(BaseModel):
     alias = CharField()
     desc = TextField()
     join_role = BigIntegerField(null=True)
+    time_message = BigIntegerField(null=True)
     a_channel = BigIntegerField(null=True)
     a_message = CharField(null=True)
     next_announcement = DateTimeField(null=True)
@@ -115,12 +116,13 @@ class Game(BaseModel):
             alias=name.replace(' ', '_'),
             desc=desc,
             join_role=None,
+            time_message=None,
             a_channel=ac,
             a_message=None,
             interval=None,
             last_announcement=datetime.utcnow(),
             next_announcement=None,
-            attendees=[369414359727734786],
+            attendees=[],
             join_src=None,
             play_src=None
         )
