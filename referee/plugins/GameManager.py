@@ -171,6 +171,9 @@ class GameManager(Plugin):
         """Sets join or start source for a game"""
         game = game.replace('_', ' ')
         game = Game.get_game_by_name(game) # type: Game
+        if not game:
+            event.msg.reply('Game not found, check your spelling and try again')
+            return
         src = event.codeblock
         if src_type == 'join':
             game.set_exec_code(src)
@@ -180,6 +183,34 @@ class GameManager(Plugin):
             event.msg.reply('Okay! Set ```{}``` as start code for {}'.format(src, game.name))
         else:
             event.msg.reply('Either `!code set join` or `!code set start`')
+
+    @Plugin.command('get', '<src_type:str>, <game:str>', group='code', level=-1)
+    def code_get_command(self, event, src_type, game):
+        """Gets join or start code for a game"""
+        game = game.replace('_', ' ')
+        game = Game.get_game_by_name(game) # type: Game
+        if not game:
+            event.msg.reply('Game not found, check your spelling and try again')
+            return
+        if src_type == 'join':
+            event.msg.reply('```{}```'.format(game.join_src))
+        elif src_type == 'start':
+            event.msg.reply('```{}```'.format(game.play_src))
+        else:
+            event.msg.reply('Either `!code set join` or `!code set start`')
+
+    @Plugin.command('clear', '<game:str>', group='game', level=CommandLevel.MOD)
+    def clear_game_command(self, event, game):
+        """Clears attendees for game"""
+        game = game.replace('_', ' ')
+        game = Game.get_game_by_name(game) # type: Game
+        if not game:
+            event.msg.reply('Game not found, check your spelling and try again')
+            return
+        query = Game.update(attendees=[])
+        query.where(Game.name == game.name).execute()
+        event.msg.reply('Okay! Cleared attendee list for {}'.format(game.name))
+
 
     @Plugin.command('schedule', '<game:str>, <interval:str>', group='game', level=-1)
     def schedule_command(self, event, game, interval):
