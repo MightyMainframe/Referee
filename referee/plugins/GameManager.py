@@ -8,7 +8,7 @@ from disco.types.channel import (ChannelType, PermissionOverwrite,
 from disco.util.snowflake import to_snowflake
 
 from referee.constants import (EMOJIS, GAME_ADD_STEPS, GAME_INFO_STEPS,
-                               REACTIONS_MESSAGE, TEAM_CATEGORY, CommandLevel)
+                               REACTIONS_MESSAGES, TEAM_CATEGORY, CommandLevel)
 from referee.models.game import ExecMode, ExecType, Game
 from referee.util.input import parse_duration
 from referee.util.timing import Eventual
@@ -87,7 +87,7 @@ class GameManager(Plugin):
         event.msg.reply(self.join_team(name, event.msg.author))
 
     @Plugin.listen('MessageReactionAdd', conditional=lambda e:
-                   e.message_id == REACTIONS_MESSAGE and e.emoji.id in EMOJIS)
+                   e.message_id in REACTIONS_MESSAGES and e.emoji.id in EMOJIS)
     def on_reaction_add(self, event):
         if event.user_id == self.bot.client.state.me.id:
             return
