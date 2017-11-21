@@ -1,6 +1,8 @@
 import pprint
 from datetime import datetime
+import pytz
 
+from disco.types.message import MessageEmbed
 from holster.enum import Enum
 from peewee import (BigIntegerField, BooleanField, CharField, DateTimeField,
                     IntegerField, SmallIntegerField, TextField)
@@ -108,6 +110,24 @@ class Game(BaseModel):
             return
         query = Game.update(next_announcement=next_announcement, interval=interval)
         query.where(Game.name == self.name).execute()
+
+    def announce_next(self, p):
+        embed = MessageEmbed()
+        if not self.next_announcement:
+            return
+        utc_naive = self.next_announcement # type: datetime
+        utc_time = utc_naive.replace(tzinfo=pytz.utc)
+        t_format = "%a %d %B at %X %Z"
+        timezones = {'GMT': 'GMT', 'PST/PDT': 'PST8PDT', 'EST/EDT': 'EST5EDT', 'CET/CEST': 'CET'}
+        embed.title = 'Next {}'.format(self.name)
+        for tzname in timezones:
+            converted_time = utc_time.astimezone(pytz.timezone(timezones[tzname]))
+            embed.add_field(name=tzname, value=converted_time.strftime(t_format), inline=True)
+        channel = p.state.channels.get(self.a_channel)
+        if not channel:
+            self.log.warning('Not triggering announcement, channel %s was not found!',
+                             self.a_channel)
+        channel.send_message('@here', embed=embed)
 
     @classmethod
     def new(cls, name, desc, ac=None):

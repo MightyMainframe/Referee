@@ -34,7 +34,7 @@ class GameManager(Plugin):
         games = Game.select().where(
             Game.next_announcement < (datetime.utcnow() + timedelta(seconds=1))
         )
-        for game in games:
+        for game in games: # type: Game
             message = game.a_message
             channel = self.state.channels.get(game.a_channel)
             if not channel:
@@ -42,6 +42,8 @@ class GameManager(Plugin):
                                  game.a_channel)
             channel.send_message(message)
             game.set_interval(game.interval)
+            next_announcement = Eventual(game.announce_next(self))
+            next_announcement.set_next_schedule(datetime.utcnow() + timedelta(days=2))
         self.queue_announcements()
 
 
@@ -148,30 +150,15 @@ class GameManager(Plugin):
         if key == 'a_m' or key == 'a_message':
             query = Game.update(a_message=value)
         elif key == 'a_c' or key == 'a_channel':
-            try:
-                value = to_snowflake(value)
-            except:
-                return
-            else:
-                query = Game.update(a_channel=value)
+            query = Game.update(a_channel=value)
         elif key == 'alias':
             if ' ' in value:
                 return event.msg.reply('Alias can\'t contain spaces!')
             query = Game.update(alias=value)
         elif key == 'role':
-            try:
-                role = to_snowflake(value)
-            except:
-                return
-            else:
-                query = Game.update(join_role=role)
+            query = Game.update(join_role=value)
         elif key == 'time_msg':
-            try:
-                message = to_snowflake(value)
-            except:
-                return
-            else:
-                query = Game.update(time_message=message)
+            query = Game.update(time_message=value)
         else:
             return event.msg.reply('Invalid key, check your spelling and try again')
         query.where(Game.name == game.name).execute()
