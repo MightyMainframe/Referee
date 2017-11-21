@@ -4,7 +4,6 @@ If you plan to self host this bot, edit them to contain values from your server
 """
 import re
 from collections import OrderedDict
-from disco.types.guild import GuildMember
 from holster.enum import Enum
 
 ###Constants
@@ -17,7 +16,7 @@ PY_CODE_BLOCK = u'```py\n{}\n```'
 TEAM_CATEGORY = 355983461825380352
 REACTIONS_MESSAGES = [382172474076430337, 382173174525198336]
 EMOJIS = {
-    377098801095114753: 'MMTestGame',
+    377098801095114753: u'MMTestGame',
     377098801195909122: u'MMOW',
     377098801384652800: u'MMUHC',
     377098801397235722: u'MMRL',
@@ -50,6 +49,11 @@ GAME_ADD_STEPS = {
     'fail': 'Process canceled. Restart it by using `!game add`'
 }
 MC_UUID_URL = 'https://api.mojang.com/users/profiles/minecraft/{}'
+LEVELS = {
+    50: 379143939686662144,
+    110: 379094699409014794,
+    250: 195555487905873920
+}
 
 ###Enums
 
@@ -65,7 +69,7 @@ def check_global_admin(uid):
 
 def get_user_level(user):
     """Gets user level for certain user"""
-    user = user # type: GuildMember
+    user = user
     if MOD_ROLE in user.roles:
         return 2
     elif DEV_ROLE in user.roles:
