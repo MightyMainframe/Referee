@@ -12,6 +12,7 @@ class User(BaseModel):
     mc_uuid = CharField()
     steam_name = CharField()
     battle_tag = CharField()
+    points = IntegerField()
 
     metadata_fields = ['blizzard', 'minecraft', 'steam']
 
@@ -40,8 +41,15 @@ class User(BaseModel):
             mc_name='',
             mc_uuid='',
             steam_name='',
-            battle_tag=''
+            battle_tag='',
+            points=0
         )
+
+    def add_points(self, points=0):
+        points = points + self.points
+        #TODO: Role checking
+        query = User.update(points=points)
+        query.where(User.user_id == self.user_id).execute()
 
     def add_minecraft_data(self, mc_n, uuid):
         query = User.update(mc_name=mc_n, mc_uuid=uuid)

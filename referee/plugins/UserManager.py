@@ -2,7 +2,7 @@
 import requests
 from disco.bot import Plugin
 
-from referee.constants import BATTLE_TAG, MC_NAME, MC_UUID, STEAM_NAME, MC_UUID_URL
+from referee.constants import BATTLE_TAG, MC_NAME, MC_UUID, STEAM_NAME, MC_UUID_URL, CommandLevel
 from referee.models.user import User
 
 def get_mc_uuid(username):
@@ -24,6 +24,24 @@ def check_regex(regex):
 
 class UserManager(Plugin):
     """Manages user related bits"""
+
+    @Plugin.command('first', group='award', level=CommandLevel.MOD, context={'place': 'first'})
+    @Plugin.command('second', group='award', level=CommandLevel.MOD, context={'place': 'second'})
+    @Plugin.command('third', group='award', level=CommandLevel.MOD, context={'place': 'third'})
+    def award_command(self, event, place='first'):
+        if not event.msg.mentions:
+            event.msg.reply('Please mention all users you want to award the {} place'.format(place))
+            return
+        users = event.msg.mentions.values()
+        for user in users:
+            user = User.get_user_by_id(user.id) # type: User
+            if place == 'first':
+                user.add_points(10)
+            elif place == 'second':
+                user.add_points(5)
+            elif place == 'third':
+                user.add_points(2)
+        event.msg.reply('Okay! Points are awarded!')
 
     @Plugin.command('add', '<key:str> <value:str>', aliases=['set', 'save'], group='metadata')
     def add_metadata(self, event, key, value):
