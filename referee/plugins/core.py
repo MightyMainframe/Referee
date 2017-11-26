@@ -1,22 +1,27 @@
 """Core handler for bot"""
 import contextlib
+import json
 import pprint
 import time
 import traceback
+import requests
 from datetime import datetime
 
 import humanize
 import psycopg2
-from disco.bot import Bot, Plugin
+from disco.bot import Plugin
 from disco.bot.command import CommandEvent
 from disco.types.message import MessageEmbed, MessageTable
-from disco.types.user import Game, GameType, Status
+from disco.types.user import Game as DiscoGame
+from disco.types.user import GameType, Status
 from holster.emitter import Priority
 
 from referee import ENV, STARTED
 from referee.constants import (CONTROL_CHANNEL, PLAYING_STATUS, PY_CODE_BLOCK,
-                               check_global_admin, get_user_level, CommandLevel)
+                               CommandLevel, check_global_admin,
+                               get_user_level)
 from referee.db import database, init_db
+from referee.models.game import Game
 from referee.plugins import GameManager, UserManager
 
 
@@ -38,7 +43,7 @@ class Core(Plugin):
     @Plugin.listen('Ready', priority=Priority.BEFORE)
     def on_ready(self, event):
         """Fired when bot is ready, sets playing status"""
-        self.client.update_presence(Status.online, Game(type=GameType.default, name=PLAYING_STATUS))
+        self.client.update_presence(Status.online, DiscoGame(type=GameType.default, name=PLAYING_STATUS))
         with self.send_control_message() as embed:
             embed.title = 'Connected'
             embed.color = 0x77dd77
@@ -198,6 +203,60 @@ class Core(Plugin):
         """Reconnects the bot"""
         event.msg.reply('Okay! Closing connection')
         self.client.gw.ws.close()
+
+    @Plugin.command('up', group='db', level=-1, conditional=lambda e: e.msg.attachments != [])
+    def db_up(self, event):
+        print event.msg.attachments
+        games_json = {}
+        for attachment in event.msg.attachments.values():
+            print attachment.filename
+            if '.json' in attachment.filename.lower():
+                print 'Yes'
+                response = requests.get(attachment.url)
+                games_json = response.json()
+                print games_json
+                for game in games_json:
+                    if not Game.get_game_by_name(game):
+                        game_name = game
+                        game = games_json[game]
+                        Game.create(
+                            name=game_name,
+                            alias=game['alias'],
+                            desc=game['desc'],
+                            join_role=game['join_role'],
+                            time_message=game['time_msg'],
+                            a_channel=game['a_channel'],
+                            a_message=game['a_message'],
+                            interval=game['interval'],
+                            attendees=game['attendees'],
+                            join_src=game['join_src'],
+                            play_src=game['play_src'],
+                            last_announcement=datetime.utcnow()
+                        )
+                        event.msg.reply('Created game {}'.format(game_name))
+                    else:
+                        event.msg.reply('Game {} already existed.'.format(game))
+                event.msg.reply('Done')
+
+    @Plugin.command('down', group='db', level=-1)
+    def db_down(self, event):
+        games_json = {}
+        games = Game.select()
+        for game in games: # type: Game
+            game_json = {
+                'alias': game.alias,
+                'desc': game.desc,
+                'join_role': game.join_role,
+                'time_msg': game.time_message,
+                'a_channel': game.a_channel,
+                'a_message': game.a_message,
+                'interval': game.interval,
+                'attendees': game.attendees,
+                'join_src': game.join_src,
+                'play_src': game.play_src
+            }
+            games_json[game.name] = game_json
+        event.msg.reply('Here is your file!', attachments=[('database.json', json.dumps(games_json))])
 
     @Plugin.command('sql', level=-1)
     def sql_command(self, event):
