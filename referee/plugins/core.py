@@ -4,11 +4,11 @@ import json
 import pprint
 import time
 import traceback
-import requests
 from datetime import datetime
 
 import humanize
 import psycopg2
+import requests
 from disco.bot import Plugin
 from disco.bot.command import CommandEvent
 from disco.types.message import MessageEmbed, MessageTable
@@ -206,6 +206,7 @@ class Core(Plugin):
 
     @Plugin.command('up', group='db', level=-1, conditional=lambda e: e.msg.attachments != [])
     def db_up(self, event):
+        """Upload a JSON file to the DB"""
         games_json = {}
         found_game = False
         for attachment in event.msg.attachments.values():
@@ -240,6 +241,7 @@ class Core(Plugin):
 
     @Plugin.command('down', group='db', level=-1)
     def db_down(self, event):
+        """Download all games in the DB as JSON file"""
         games_json = {}
         games = Game.select()
         for game in games: # type: Game

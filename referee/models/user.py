@@ -18,8 +18,7 @@ class User(BaseModel):
 
     @classmethod
     def get_metadata_fields(cls):
-        s = ', '.join(cls.metadata_fields)
-        return s
+        return ', '.join(cls.metadata_fields)
 
     class Meta:
         db_table = 'users'
@@ -47,7 +46,6 @@ class User(BaseModel):
 
     def add_points(self, points=0):
         points = points + self.points
-        #TODO: Role checking
         query = User.update(points=points)
         query.where(User.user_id == self.user_id).execute()
 

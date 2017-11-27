@@ -13,6 +13,7 @@ from referee.models.game import ExecMode, ExecType, Game
 from referee.util.input import parse_duration
 from referee.util.timing import Eventual
 
+
 class GameManager(Plugin):
     """Manages all game related bits"""
     def load(self, ctx):
@@ -82,7 +83,7 @@ class GameManager(Plugin):
         PermissionOverwrite.create_for_channel(teams[name], user, allow=36701184)
         return 'Added {} to team {}'.format(user.mention, name)
 
-    @Plugin.command('team', '<name:str>', level=CommandLevel.DEV)
+    @Plugin.command('team', '<name:str>')
     def team_command(self, event, name):
         """Adds a user to a team"""
         name = name.replace('_', ' ').lower()
@@ -131,7 +132,7 @@ class GameManager(Plugin):
             return event.msg.reply('Game not found, check your spelling and try again')
         return game.execute(event, exec_type='start')
 
-    @Plugin.command('join', '<game:str>', level=CommandLevel.DEV)
+    @Plugin.command('join', '<game:str>')
     def join_command(self, event, game):
         """Adds a user to a game"""
         game = game.replace('_', ' ')

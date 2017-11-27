@@ -1,13 +1,12 @@
 import pprint
 from datetime import datetime
-import pytz
 
 from disco.types.message import MessageEmbed
 from holster.enum import Enum
-from peewee import (BigIntegerField, BooleanField, CharField, DateTimeField,
-                    IntegerField, SmallIntegerField, TextField)
-from playhouse.postgres_ext import ArrayField, JSONField
+from peewee import BigIntegerField, CharField, DateTimeField, TextField
+from playhouse.postgres_ext import ArrayField
 
+import pytz
 from referee.constants import PY_CODE_BLOCK
 from referee.db import BaseModel
 from referee.util.input import parse_duration
@@ -56,10 +55,10 @@ class Game(BaseModel):
         elif exec_type == ExecType.start:
             src = '{}'.format(self.play_src)
         else:
-            src = 'event.msg.reply(\'Invalid exec type provided\')'
+            src = 'return \'Invalid exec type provided\''
 
         if src == '' or src == 'None':
-            src = 'event.msg.reply(\'No source provided\')'
+            src = 'return \'No source provided\''
         lines = filter(bool, src.split('\n'))
         if lines[-1] and 'return' not in lines[-1]:
             lines[-1] = 'return ' + lines[-1]
@@ -158,5 +157,5 @@ class Game(BaseModel):
                 return Game.select().where(
                     Game.alias == name
                 ).limit(1).get()
-            except:
+            except Game.DoesNotExist:
                 return None
