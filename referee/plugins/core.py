@@ -206,15 +206,13 @@ class Core(Plugin):
 
     @Plugin.command('up', group='db', level=-1, conditional=lambda e: e.msg.attachments != [])
     def db_up(self, event):
-        print event.msg.attachments
         games_json = {}
+        found_game = False
         for attachment in event.msg.attachments.values():
-            print attachment.filename
             if '.json' in attachment.filename.lower():
-                print 'Yes'
+                found_game = True
                 response = requests.get(attachment.url)
                 games_json = response.json()
-                print games_json
                 for game in games_json:
                     if not Game.get_game_by_name(game):
                         game_name = game
@@ -237,6 +235,8 @@ class Core(Plugin):
                     else:
                         event.msg.reply('Game {} already existed.'.format(game))
                 event.msg.reply('Done')
+        if not found_game:
+            event.msg.reply('You need to upload a JSON file!')
 
     @Plugin.command('down', group='db', level=-1)
     def db_down(self, event):
