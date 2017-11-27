@@ -53,6 +53,7 @@ class Game(BaseModel):
         if exec_type == ExecType.join:
             src = '{}'.format(self.join_src)
         elif exec_type == ExecType.start:
+            ctx['event'] = event
             src = '{}'.format(self.play_src)
         else:
             src = 'return \'Invalid exec type provided\''
@@ -74,6 +75,8 @@ class Game(BaseModel):
             else:
                 return PY_CODE_BLOCK.format(type(e).__name__ + ': ' + str(e))
         result = pprint.pformat(local['x'])
+        if exec_type == ExecType.start:
+            return
         if mode == ExecMode.command:
             event.msg.reply(result)
         else:
