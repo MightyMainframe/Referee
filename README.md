@@ -15,3 +15,4 @@ No. Simply because Referee is built in a way that doesn't allow multi server com
 
 ## Contributing
 If you'd like to contribute, feel free to submit a PR!
+If you don't have the coding knowledge to createa a PR, you can create an issue, and we'll look into it!
