@@ -10,7 +10,7 @@ services:
     volumes:
       - .:/opt/referee
     ports:
-      - "7171:7171"
+      - "7272:7171"
     depends_on:
       - db
 volumes:
