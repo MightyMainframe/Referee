@@ -104,6 +104,7 @@ class GameManager(Plugin):
                 reply = 'Game {} not found, check your spelling and try again'.format(game_name)
             else:
                 reply = game.execute(event, mode=ExecMode.reaction)
+                event.guild.members[event.user_id].add_role(game.join_role)
         event.guild.members[event.user_id].user.open_dm().send_message(reply)
         event.delete()
 
