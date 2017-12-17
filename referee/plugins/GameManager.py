@@ -139,6 +139,7 @@ class GameManager(Plugin):
         game = Game.get_game_by_name(game)
         if not game:
             return event.msg.reply('Game not found, check your spelling and try again')
+        event.member.add_role(game.join_role)
         return game.execute(event)
 
     @Plugin.command('set', '<game:str>, <key:str>, <value:str...>', group='g', level=CommandLevel.MOD)
