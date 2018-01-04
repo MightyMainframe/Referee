@@ -45,8 +45,8 @@ class UserManager(Plugin):
             user.add_points(points)
         event.msg.reply('Okay! Points are awarded!')
         
-    @Plugin.command('get', '<key:str>', group='metadata')
-    def get_metadata(self, event, key):
+    @Plugin.command('get', group='metadata')
+    def get_metadata(self, event):
         try:
             user = User.get_user_by_id(event.msg.author.id)
         except:
