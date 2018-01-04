@@ -45,7 +45,11 @@ class User(BaseModel):
         )
       
     def get_metadata(self):
-        return 'Minecraft name: {}, Steam: {}, Battle Tag: {}'.format(self.mc_name, self.steam_name, self.battle_tag)
+        return 'Minecraft name: {}, Steam: {}, Battle Tag: {}'.format(
+            self.mc_name if self.mc_name else 'None', 
+            self.steam_name if self.steam_name else 'None',
+            self.battle_tag if self.battle_tag else 'None'
+        )
 
     def add_points(self, points=0):
         points = points + self.points
