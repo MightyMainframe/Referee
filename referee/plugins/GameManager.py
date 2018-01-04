@@ -208,6 +208,9 @@ class GameManager(Plugin):
         if not game:
             event.msg.reply('Game not found, check your spelling and try again')
             return
+        attendees = game.attendees
+        for uid in attendees:
+            event.guild.members.get(uid).remove_role(game.join_role)
         query = Game.update(attendees=[])
         query.where(Game.name == game.name).execute()
         event.msg.reply('Okay! Cleared attendee list for {}'.format(game.name))
