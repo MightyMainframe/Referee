@@ -44,6 +44,15 @@ class UserManager(Plugin):
                     member.add_role(LEVELS[level])
             user.add_points(points)
         event.msg.reply('Okay! Points are awarded!')
+        
+    @Plugin.command('get', '<key:str>', group='metadata')
+    def get_metadata(self, event, key):
+        try:
+            user = User.get_user_by_id(event.msg.author.id)
+        except:
+            return event.msg.reply('You don\'t have any data stored yet!')
+        
+        return event.msg.reply(user.get_metadata())
 
     @Plugin.command('add', '<key:str> <value:str>', aliases=['set', 'save'], group='metadata')
     def add_metadata(self, event, key, value):
