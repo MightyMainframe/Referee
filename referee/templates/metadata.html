@@ -1,0 +1,56 @@
+{% extends 'base_site.html' %}
+
+{% block title %} Metadata {% endblock title %} 
+
+{% block content %}
+<div class="right_col" role="main">
+    <div class="">
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>Metadata
+                            <small>{{ g.user.username }}</small>
+                        </h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <form class="form-horizontal form-label-left" action={{ url_for( 'dash.metadata')}} method="post">
+
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Battle.net</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input type="text" class="form-control" name="blizzard" value="LotU#21542">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Minecraft name</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input type="text" class="form-control" name="minecraft" value="LordOfTheUndead">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Steam name</label>
+                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                    <input type="text" class="form-control" name="steam" value="LordOfTheUndead">
+                                </div>
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-9 col-sm-9 col-xs-12 col-md-offset-3">
+                                    <button type="reset" class="btn btn-primary">Cancel</button>
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

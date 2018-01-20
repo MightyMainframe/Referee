@@ -4,6 +4,23 @@ services:
     build: ./docker/database/
     volumes:
       - postgres:/var/lib/postgresql/data:rw
+  redis:
+    image: redis:3.2
+    command: redis-server --appendonly yes
+    volumes:
+      - ./.data:/data
+    ports:
+      - 6379:6379
+  web:
+    build: .
+    command: python manage.py web -r
+    volumes:
+      - .:/opt/protector
+    ports:
+      - 8686:8686
+    depends_on:
+      - db
+      - redis
   bot:
     build: .
     command: python manage.py bot -e docker
@@ -12,6 +29,6 @@ services:
     ports:
       - "7272:7171"
     depends_on:
-      - db
+      - web
 volumes:
   postgres: {}

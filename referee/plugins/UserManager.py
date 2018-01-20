@@ -38,7 +38,9 @@ class UserManager(Plugin):
         users = event.msg.mentions.values()
         for user in users:
             member = event.msg.member
-            user = User.get_user_by_id(user.id) # type: User
+            user = User.with_id(user.id) # type: User
+            if not user:
+                continue
             for level in LEVELS:
                 if level < user.points + points and LEVELS[level] not in member.roles:
                     member.add_role(LEVELS[level])
@@ -47,9 +49,8 @@ class UserManager(Plugin):
         
     @Plugin.command('get', group='metadata')
     def get_metadata(self, event):
-        try:
-            user = User.get_user_by_id(event.msg.author.id)
-        except:
+        user = User.with_id(event.msg.author.id)
+        if not user:
             return event.msg.reply('You don\'t have any data stored yet!')
         
         return event.msg.reply(user.get_metadata())
@@ -57,10 +58,9 @@ class UserManager(Plugin):
     @Plugin.command('add', '<key:str> <value:str>', aliases=['set', 'save'], group='metadata')
     def add_metadata(self, event, key, value):
         """Adds metadata to a user"""
-        try:
-            user = User.get_user_by_id(event.msg.author.id)
-        except AttributeError:
-            user = User.new(event.msg.author.id)
+        user = User.with_id(event.msg.author.id)
+        if not user:
+            user = User.from_disco_user(event.msg.author)
 
         key = key.lower()
         if not key in User.metadata_fields:
@@ -99,9 +99,8 @@ class UserManager(Plugin):
     @Plugin.command('remove', '<key:str>', aliases=['delete', 'clear'], group='metadata')
     def remove_metadata(self, event, key):
         """Removes metadata from a user"""
-        try:
-            user = User.get_user_by_id(event.msg.author.id)
-        except AttributeError:
+        user = User.with_id(event.msg.author.id)
+        if not user:
             return event.msg.reply('No user found!')
         key = key.lower()
         if not key in User.metadata_fields:

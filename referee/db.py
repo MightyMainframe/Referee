@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
 import os
+import redis
+import json
 
 from peewee import OP, Expression, Model, Proxy
 from playhouse.postgres_ext import PostgresqlExtDatabase
@@ -8,6 +10,15 @@ from playhouse.postgres_ext import PostgresqlExtDatabase
 import psycogreen.gevent; psycogreen.gevent.patch_psycopg()
 
 ENV = os.getenv('ENV', 'local')
+
+if ENV == 'docker':
+    rdb = redis.Redis(db=0, host='redis')
+else:
+    rdb = redis.Redis(db=11)
+
+def emit(typ, **kwargs):
+    kwargs['type'] = typ
+    rdb.publish('actions', json.dumps(kwargs))
 
 REGISTERED_MODELS = []
 

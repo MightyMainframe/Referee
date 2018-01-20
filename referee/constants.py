@@ -7,6 +7,7 @@ from collections import OrderedDict
 from holster.enum import Enum
 
 ###Constants
+GUILD_ID = 189186101905326081
 CONTROL_CHANNEL = 375605052171354122
 PLAYING_STATUS = 'Managing all the things'
 GLOBAL_ADMINS = [188918216008007680, 134146475591467008]

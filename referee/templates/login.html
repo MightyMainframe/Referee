@@ -1,0 +1,36 @@
+{% extends "base_site.html" %}
+
+{% block title %} Login {% endblock title %}
+
+{% block body_class %}login{% endblock body_class %}
+
+{% block body %}
+  <div>
+    <a class="hiddenanchor" id="signup"></a>
+    <a class="hiddenanchor" id="signin"></a>
+
+    <div class="login_wrapper">
+        <section class="login_content">
+          <form>
+            <h1>Login using Discord</h1>
+            <div>
+                <a href="/auth/discord">
+                    <img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" height=87 width=256 style="margin: auto; display: block;"/>
+                </a>
+            </div>
+
+            <div class="clearfix"></div>
+
+            <div class="separator">
+              <div class="clearfix"></div>
+              <br />
+
+              <div>
+                <h1><i class="fa fa-spinner"></i> Referee</h1>
+              </div>
+            </div>
+          </form>
+        </section>
+      </div>
+  </div>
+{% endblock body %}

@@ -1,0 +1,133 @@
+{% extends 'base_site.html' %}
+
+{% block title %} Moderation {% endblock title %}
+
+{% block content %}
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Moderation settings</h3>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>
+                            <i class="fa fa-align-left"></i> Games
+                        </h2>
+                        <!-- <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <button type="submit" class="btn btn-success">Edit</a>
+                            </li>
+                        </ul> -->
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- start accordion -->
+                        <div class="accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                            <div class="panel">
+                                <a class="panel-heading collapsed" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                                    aria-expanded="false" aria-controls="collapseOne">
+                                    <h4 class="panel-title">Overwatch</h4>
+                                </a>
+                                <a onclick="new PNotify({
+                                    title: 'Clicked the thing!',
+                                    text: 'This would take you to the edit page!',
+                                    type: 'info',
+                                    styling: 'bootstrap3'
+                                });">
+                                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                                        <div class="panel-body">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Name/Alias</th>
+                                                        <th>Description</th>
+                                                        <th>Join Role</th>
+                                                        <th>Announcement Channel</th>
+                                                        <th>Announcement Message</th>
+                                                        <th>Next Announcement</th>
+                                                        <th>Last Announcement</th>
+                                                        <th>Attendees</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row">1</th>
+                                                        <th>Overwatch</th>
+                                                        <th>Overwatch tournaments</th>
+                                                        <th>372608347536359436</th>
+                                                        <th>372608105890054146</th>
+                                                        <th>Some fancy message goes here! Wew!</th>
+                                                        <th>2018-2-6 15:46:26.508570</th>
+                                                        <th>2017-12-16 15:46:26.508570</th>
+                                                        <th>[LotU, SomeOtherPerson, AnotherPerson, AnotherPerson, AnotherPerson,
+                                                            AnotherPerson]
+                                                        </th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="panel">
+                                <a class="panel-heading collapsed" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+                                    aria-expanded="false" aria-controls="collapseTwo">
+                                    <h4 class="panel-title">Rocket League</h4>
+                                </a>
+                                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                        <a href="#" onclick="new PNotify({
+                                            title: 'New Thing',
+                                            text: 'Just to let you know, something happened.',
+                                            type: 'info',
+                                            styling: 'bootstrap3'
+                                        });">
+                                        <div class="panel-body">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Name/Alias</th>
+                                                        <th>Description</th>
+                                                        <th>Join Role</th>
+                                                        <th>Announcement Channel</th>
+                                                        <th>Announcement Message</th>
+                                                        <th>Next Announcement</th>
+                                                        <th>Last Announcement</th>
+                                                        <th>Attendees</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th scope="row">1</th>
+                                                        <th>Rocket League</th>
+                                                        <th>Rocket League tournaments</th>
+                                                        <th>367668676821909507</th>
+                                                        <th>370807978166583297</th>
+                                                        <th>Some fancy message goes here! Wew!</th>
+                                                        <th>2018-2-6 15:46:26.508570</th>
+                                                        <th>2017-12-16 15:46:26.508570</th>
+                                                        <th>[LotU, SomeOtherPerson, AnotherPerson, AnotherPerson, AnotherPerson,
+                                                            AnotherPerson]
+                                                        </th>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </a>
+
+                                    </div>
+                            </div>
+                        </div>
+                        <!-- end of accordion -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
