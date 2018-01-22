@@ -44,9 +44,9 @@ class Core(Plugin):
     def on_ready(self, event):
         """Fired when bot is ready, sets playing status"""
         self.client.update_presence(Status.invisible, DiscoGame(type=GameType.default, name=PLAYING_STATUS))
-        with self.send_control_message() as embed:
-            embed.title = 'Connected'
-            embed.color = 0x77dd77
+        # with self.send_control_message() as embed:
+        #     embed.title = 'Connected'
+        #     embed.color = 0x77dd77
 
     @Plugin.listen('MessageCreate')
     def on_message_create(self, event):

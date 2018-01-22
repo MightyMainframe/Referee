@@ -1,6 +1,6 @@
-{% extends 'base_site.html' %}
+{% extends 'base_site.html' %} 
 
-{% block title %} Moderation {% endblock title %}
+{% block title %} Moderation {% endblock title %} 
 
 {% block content %}
 <div class="right_col" role="main">
@@ -28,101 +28,89 @@
                     <div class="x_content">
                         <!-- start accordion -->
                         <div class="accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                            {% for game in games %}
                             <div class="panel">
-                                <a class="panel-heading collapsed" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
-                                    aria-expanded="false" aria-controls="collapseOne">
-                                    <h4 class="panel-title">Overwatch</h4>
+                                <a class="panel-heading collapsed" role="tab" id="heading{{ game.name.replace(' ', '_') }}" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ game.name.replace(' ', '_') }}"
+                                    aria-expanded="false" aria-controls="collapse{{ game.name.replace(' ', '_') }}">
+                                    <h4 class="panel-title">{{ game.name }}</h4>
                                 </a>
-                                <a onclick="new PNotify({
-                                    title: 'Clicked the thing!',
-                                    text: 'This would take you to the edit page!',
-                                    type: 'info',
-                                    styling: 'bootstrap3'
-                                });">
-                                    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
-                                        <div class="panel-body">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Name/Alias</th>
-                                                        <th>Description</th>
-                                                        <th>Join Role</th>
-                                                        <th>Announcement Channel</th>
-                                                        <th>Announcement Message</th>
-                                                        <th>Next Announcement</th>
-                                                        <th>Last Announcement</th>
-                                                        <th>Attendees</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row">1</th>
-                                                        <th>Overwatch</th>
-                                                        <th>Overwatch tournaments</th>
-                                                        <th>372608347536359436</th>
-                                                        <th>372608105890054146</th>
-                                                        <th>Some fancy message goes here! Wew!</th>
-                                                        <th>2018-2-6 15:46:26.508570</th>
-                                                        <th>2017-12-16 15:46:26.508570</th>
-                                                        <th>[LotU, SomeOtherPerson, AnotherPerson, AnotherPerson, AnotherPerson,
-                                                            AnotherPerson]
-                                                        </th>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                <div id="collapse{{ game.name.replace(' ', '_') }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ game.name.replace(' ', '_') }}">
+                                    <div class="panel-body">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Name/Alias</th>
+                                                    <th>Description</th>
+                                                    <th>Join Role</th>
+                                                    <th>Announcement Channel</th>
+                                                    <th>Announcement Message</th>
+                                                    <th>Next Announcement</th>
+                                                    <th>Last Announcement</th>
+                                                    <th>Attendees</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row">{{ game.id }}</th>
+                                                    <th>{{ game.name }}</th>
+                                                    <th>{{ game.desc }}</th>
+                                                    <th>{{ game.join_role }}</th>
+                                                    <th>{{ game.a_channel }}</th>
+                                                    <th>{{ game.a_message }}</th>
+                                                    <th>{{ game.next_announcement }}</th>
+                                                    <th>{{ game.last_announcement }}</th>
+                                                    <th>{{ game.attendees }}</th>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
+                                </div>
                                 </a>
                             </div>
-                            <div class="panel">
+                            {% endfor %}
+                            <!-- <div class="panel">
                                 <a class="panel-heading collapsed" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
                                     aria-expanded="false" aria-controls="collapseTwo">
                                     <h4 class="panel-title">Rocket League</h4>
                                 </a>
-                                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-                                        <a href="#" onclick="new PNotify({
-                                            title: 'New Thing',
-                                            text: 'Just to let you know, something happened.',
-                                            type: 'info',
-                                            styling: 'bootstrap3'
-                                        });">
-                                        <div class="panel-body">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Name/Alias</th>
-                                                        <th>Description</th>
-                                                        <th>Join Role</th>
-                                                        <th>Announcement Channel</th>
-                                                        <th>Announcement Message</th>
-                                                        <th>Next Announcement</th>
-                                                        <th>Last Announcement</th>
-                                                        <th>Attendees</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row">1</th>
-                                                        <th>Rocket League</th>
-                                                        <th>Rocket League tournaments</th>
-                                                        <th>367668676821909507</th>
-                                                        <th>370807978166583297</th>
-                                                        <th>Some fancy message goes here! Wew!</th>
-                                                        <th>2018-2-6 15:46:26.508570</th>
-                                                        <th>2017-12-16 15:46:26.508570</th>
-                                                        <th>[LotU, SomeOtherPerson, AnotherPerson, AnotherPerson, AnotherPerson,
-                                                            AnotherPerson]
-                                                        </th>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                    <div class="panel-body">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Name/Alias</th>
+                                                    <th>Description</th>
+                                                    <th>Join Role</th>
+                                                    <th>Announcement Channel</th>
+                                                    <th>Announcement Message</th>
+                                                    <th>Next Announcement</th>
+                                                    <th>Last Announcement</th>
+                                                    <th>Attendees</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row">1</th>
+                                                    <th>Rocket League</th>
+                                                    <th>Rocket League tournaments</th>
+                                                    <th>367668676821909507</th>
+                                                    <th>370807978166583297</th>
+                                                    <th>Some fancy message goes here! Wew!</th>
+                                                    <th>2018-2-6 15:46:26.508570</th>
+                                                    <th>2017-12-16 15:46:26.508570</th>
+                                                    <th>[LotU, SomeOtherPerson, AnotherPerson, AnotherPerson, AnotherPerson,
+                                                        AnotherPerson]
+                                                    </th>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     </a>
 
-                                    </div>
-                            </div>
+                                </div>
+                            </div> -->
                         </div>
                         <!-- end of accordion -->
                     </div>
@@ -130,4 +118,4 @@
             </div>
         </div>
     </div>
-{% endblock content %}
+    {% endblock content %}

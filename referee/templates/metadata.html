@@ -22,19 +22,19 @@
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Battle.net</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input type="text" class="form-control" name="blizzard" value="LotU#21542">
+                                    <input type="text" class="form-control" name="blizzard" value="{{ g.user.battle_tag }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Minecraft name</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input type="text" class="form-control" name="minecraft" value="LordOfTheUndead">
+                                    <input type="text" class="form-control" name="minecraft" value="{{ g.user.mc_name }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12">Steam name</label>
                                 <div class="col-md-9 col-sm-9 col-xs-12">
-                                    <input type="text" class="form-control" name="steam" value="LordOfTheUndead">
+                                    <input type="text" class="form-control" name="steam" value="{{ g.user.steam_name }}">
                                 </div>
                             </div>
 
