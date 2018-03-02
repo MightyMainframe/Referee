@@ -42,7 +42,6 @@ class User(BaseModel):
     
     @classmethod
     def from_disco_user(cls, user, should_update=True):
-        # DEPRECATED
         obj, _ = cls.get_or_create(
             user_id=user.id,
             defaults={
