@@ -68,5 +68,4 @@ def __disco_user_from_id(uid):
 
     c = get_client()
     u = DiscoUser.create(c.api.client, c.api.http((HTTPMethod.GET, Routes.GUILDS + '/{}/members/{}'.format(GUILD_ID, uid))).json())
-    print(u)
     return u

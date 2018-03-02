@@ -59,6 +59,5 @@ def auth_callback():
         return 'User not found!', 403
 
     g.user = user
-    print g.user
 
     return redirect('/')
