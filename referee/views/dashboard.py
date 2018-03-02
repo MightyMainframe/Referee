@@ -2,7 +2,7 @@ import json
 import subprocess
 
 from flask import (Blueprint, flash, g, make_response, redirect,
-                   render_template, request)
+                   render_template, request, url_for)
 
 from referee.models.user import User
 from referee.plugins.UserManager import get_mc_uuid
@@ -29,9 +29,8 @@ def metadata():
             user.add_minecraft_data(mc_name, get_mc_uuid(mc_name))
         if steam_name != user.steam_name and steam_name != None:
             user.add_steam_name(steam_name)
-        print('Metadata updated!')
         flash('Metadata updated!')
-        return redirect('/')
+        return redirect(url_for('dash.metadata'))
 
     return render_template('metadata.html')
 

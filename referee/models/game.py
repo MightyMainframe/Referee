@@ -108,7 +108,6 @@ class Game(BaseModel):
         try:
             next_announcement = parse_duration(interval)
         except:
-            print 'Ermahgerd! Something sploded'
             return
         query = Game.update(next_announcement=next_announcement, interval=interval)
         query.where(Game.name == self.name).execute()
@@ -130,6 +129,19 @@ class Game(BaseModel):
             self.log.warning('Not triggering announcement, channel %s was not found!',
                              self.a_channel)
         channel.send_message('@here', embed=embed)
+
+    def update_from_form(self, form):
+        form = dict(form)
+        for key, value in form.items():
+            try:
+                v = int(value[0])
+                form[key] = v
+            except:
+                form[key] = value[0]
+        for key, value in form.items():
+            if value == '':
+                del form[key]
+        Game.update(**form).where(Game.id == self.id).execute()
 
     @classmethod
     def new(cls, name, desc, ac=None):
