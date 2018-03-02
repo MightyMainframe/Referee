@@ -56,7 +56,7 @@ def __disco_user_from_id(uid):
     from yaml import load
     from referee.constants import GUILD_ID
     from disco.api.http import Routes, HTTPMethod
-    from disco.types.user import User as DiscoUser
+    from disco.types.guild import GuildMember
     def get_client():
         from disco.client import ClientConfig, Client
         with open('config.yaml', 'r') as f:
@@ -67,5 +67,5 @@ def __disco_user_from_id(uid):
         return Client(config)
 
     c = get_client()
-    u = DiscoUser.create(c.api.client, c.api.http((HTTPMethod.GET, Routes.GUILDS + '/{}/members/{}'.format(GUILD_ID, uid))).json())
+    u = GuildMember.create(c.api.client, c.api.http((HTTPMethod.GET, Routes.GUILDS.format(guild=GUILD_ID) + '/members/{}'.format(uid))).json())
     return u
