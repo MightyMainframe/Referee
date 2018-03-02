@@ -8,7 +8,7 @@ from playhouse.postgres_ext import ArrayField
 
 import pytz
 from referee.constants import PY_CODE_BLOCK
-from referee.db import BaseModel
+from referee.db import BaseModel, emit
 from referee.util.input import parse_duration
 
 ExecType = Enum(

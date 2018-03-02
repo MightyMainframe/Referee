@@ -20,7 +20,7 @@ from referee import ENV, STARTED
 from referee.constants import (CONTROL_CHANNEL, PLAYING_STATUS, PY_CODE_BLOCK,
                                CommandLevel, check_global_admin,
                                get_user_level)
-from referee.db import database, init_db
+from referee.db import database, init_db, rdb
 from referee.models.game import Game
 from referee.plugins import GameManager, UserManager
 
@@ -30,15 +30,40 @@ class Core(Plugin):
     Core plugin handling core bot features
     """
 
-    BOT_DESC = 'Referee is a bot built to manage gaming communities'
-
-    def load(self, ctx):
-        init_db(ENV)
-
     plugins = {
         'gamemanager': GameManager.GameManager,
         'usermanager': UserManager.UserManager
     }
+
+    BOT_DESC = 'Referee is a bot built to manage gaming communities'
+
+    def load(self, ctx):
+        init_db(ENV)
+        
+        self._wait_for_actions_greenlet = self.spawn(self.wait_for_actions)
+
+    def spawn_wait_for_actions(self, *args, **kwargs):
+        self._wait_for_actions_greenlet = self.spawn(self.wait_for_actions)
+        self._wait_for_actions_greenlet.link_exception(self.spawn_wait_for_actions)
+
+    def wait_for_actions(self):
+        ps = rdb.pubsub()
+        ps.subscribe('actions')
+
+        for item in ps.listen():
+            if item['type'] != 'message':
+                continue
+            
+            data = json.loads(item['data'])
+            if data['type'] == 'GAME_JOIN':
+                with self.send_control_message() as embed:
+                    embed.title = 'Game joined'
+                    embed.add_field(name='Game', value=data['game'], inline=False)
+                    embed.add_field(name='User', value='<@{}>'.format(data['uid']), inline=False)
+            elif data['type'] == 'GAME_UPDATE':
+                with self.send_control_message() as embed:
+                    embed.title = 'Updated {}'.format(data['game'])
+
 
     @Plugin.listen('Ready', priority=Priority.BEFORE)
     def on_ready(self, event):

@@ -4,6 +4,7 @@ from requests_oauthlib import OAuth2Session
 from referee.models.user import User
 from referee.models.game import Game
 from referee.util.auth import Auth
+from referee.db import emit
 
 moderation = Blueprint('moderation', __name__, url_prefix='/moderation')
 
@@ -26,5 +27,6 @@ def moderation_game_edit(gid):
     if request.method == 'POST':
         flash('{} was updated successfully!'.format(game.name), 'success')
         game.update_from_form(request.form)
+        emit('GAME_UPDATE', game=game.name)
         return redirect('moderation/games')
     return render_template('game.html', game=game)
