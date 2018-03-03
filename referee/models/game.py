@@ -41,6 +41,10 @@ class Game(BaseModel):
     class Meta:
         db_table = 'games'
 
+    @property
+    def _attendees(self):
+        return len(self.attendees)
+
     def execute(self, event, exec_type=ExecType.join, mode=ExecMode.command):
         ctx = {
             'self': self

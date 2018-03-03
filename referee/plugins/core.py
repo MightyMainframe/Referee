@@ -39,8 +39,12 @@ class Core(Plugin):
 
     def load(self, ctx):
         init_db(ENV)
+        self.startup = ctx.get('startup', datetime.utcnow())
         
         self._wait_for_actions_greenlet = self.spawn(self.wait_for_actions)
+    
+    def unload(self, ctx):
+        ctx['startup'] = self.startup
 
     def spawn_wait_for_actions(self, *args, **kwargs):
         self._wait_for_actions_greenlet = self.spawn(self.wait_for_actions)
