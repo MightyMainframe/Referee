@@ -29,7 +29,6 @@ def before_first_request():
 @referee.app.before_request
 def check_auth():
     g.user = None
-
     if 'uid' in session:
         g.user = User.with_id(session['uid'])
 

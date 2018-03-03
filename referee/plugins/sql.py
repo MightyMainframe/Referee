@@ -19,6 +19,7 @@ from disco.bot import Plugin
 from referee.db import database
 from referee.models.user import User
 from referee.util.input import parse_duration
+from referee.constants import MOD_ROLE
 
 
 class SQLPlugin(Plugin):
@@ -61,7 +62,17 @@ class SQLPlugin(Plugin):
     def on_guild_create(self, event):
         for member in list(event.members.values()):
             User.from_disco_user(member.user)
+            if MOD_ROLE in member.roles:
+                User.update(moderator=True).where((User.user_id == member.user.id)).execute()
 
     @Plugin.listen('GuildMemberAdd')
     def on_guild_member_add(self, event):
         User.from_disco_user(event.member.user)
+        if MOD_ROLE in event.member.roles:
+            User.update(moderator=True).where((User.user_id == event.member.user.id)).execute()
+    
+    @Plugin.listen('GuildMemberUpdate')
+    def on_guild_member_update(self, event):
+        User.from_disco_user(event.member.user)
+        if MOD_ROLE in event.member.roles:
+            User.update(moderator=True).where((User.user_id == event.member.user.id)).execute()

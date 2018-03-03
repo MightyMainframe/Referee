@@ -2,8 +2,11 @@ from flask import g, redirect
 from httplib import FORBIDDEN
 from referee.models.user import User
 from referee.constants import get_user_level, check_global_admin
+import gevent
 
 import functools
+
+members = {}
 
 class Auth:
     @staticmethod
@@ -17,13 +20,6 @@ class Auth:
     def mod(func=None):
         if callable(func):
             return _authed(func, 2)
-        else:
-            return functools.partial(_authed)
-
-    @staticmethod
-    def dev(func=None):
-        if callable(func):
-            return _authed(func, 1)
         else:
             return functools.partial(_authed)
 
@@ -42,30 +38,9 @@ def _authed(func, level):
         user = g.user # type: User
         if check_global_admin(user.user_id) or level == 0:
             return func(*args, **kwargs)
-        disco_user = __disco_user_from_id(user.user_id)
-        if not disco_user:
-            return redirect('/')
         if level == -1:
             return redirect('/')
-        if level > get_user_level(disco_user):
+        if level == 2 and not user.moderator:
             return redirect('/')
         return func(*args, **kwargs)
     return deco
-
-def __disco_user_from_id(uid):
-    from yaml import load
-    from referee.constants import GUILD_ID
-    from disco.api.http import Routes, HTTPMethod
-    from disco.types.guild import GuildMember
-    def get_client():
-        from disco.client import ClientConfig, Client
-        with open('config.yaml', 'r') as f:
-            data = load(f)
-
-        config = ClientConfig()
-        config.token = data.get('token')
-        return Client(config)
-
-    c = get_client()
-    u = GuildMember.create(c.api.client, c.api.http((HTTPMethod.GET, Routes.GUILDS.format(guild=GUILD_ID) + '/members/{}'.format(uid))).json())
-    return u

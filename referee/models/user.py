@@ -2,6 +2,7 @@ from peewee import (BigIntegerField, BooleanField, CharField, IntegerField,
                     NaiveQueryResultWrapper, SmallIntegerField, TextField, DateTimeField)
 from datetime import datetime
 from referee.db import BaseModel
+from referee.constants import GLOBAL_ADMINS
 
 
 @BaseModel.register
@@ -20,7 +21,7 @@ class User(BaseModel):
 
     created_at = DateTimeField(default=datetime.utcnow)
 
-    admin = BooleanField(default=False)
+    moderator = BooleanField(default=False)
 
     metadata_fields = ['blizzard', 'minecraft', 'steam']
 
@@ -74,6 +75,10 @@ class User(BaseModel):
             return User.get(user_id=uid)
         except User.DoesNotExist:
             return None
+
+    @property
+    def admin(self):
+        return self.user_id in GLOBAL_ADMINS
 
     @property
     def id(self):
