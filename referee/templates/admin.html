@@ -1,12 +1,85 @@
-{% extends 'base_site.html' %}
+{% extends 'base_site.html' %} 
 
-{% block title %} Admin settings {% endblock title %}
+{% block title %} Games {% endblock title %} 
 
 {% block content %}
 <div class="right_col" role="main">
     <div class="">
+        <div class="page-title">
+            <div class="title_left">
+                <h3>Games overview</h3>
+            </div>
+        </div>
         <div class="clearfix"></div>
-        Hecccc
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>
+                            <i class="fa fa-align-left"></i> Games
+                        </h2>
+                        <!-- <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <button type="submit" class="btn btn-success">Edit</a>
+                            </li>
+                        </ul> -->
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- start accordion -->
+                        <div class="accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                            {% for game in games %}
+                            <div class="panel">
+                                <a class="panel-heading collapsed" role="tab" id="heading{{ game.name.replace(' ', '_') }}" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ game.name.replace(' ', '_') }}"
+                                    aria-expanded="false" aria-controls="collapse{{ game.name.replace(' ', '_') }}">
+                                    <h4 class="panel-title">{{ game.name }}</h4>
+                                    <!-- <a href="/moderation/game/{{ game.id }}" style="
+                                        position: absolute;
+                                        right: 20px;
+                                    ">
+                                        <i class="fa fa-wrench"></i>
+                                    </a> -->
+                                </a>
+                                <div id="collapse{{ game.name.replace(' ', '_') }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ game.name.replace(' ', '_') }}">
+                                    <div class="panel-body">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Name/Alias</th>
+                                                    <th>Description</th>
+                                                    <th>Join code</th>
+                                                    <th>Start code</th>
+                                                    <th>Attendees</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td scope="row">{{ game.id }}</td>
+                                                    <td>{{ game.name }}</td>
+                                                    <td>{{ game.desc }}</td>
+                                                    <td>{{ game.join_src }}</td>
+                                                    <td>{{ game.play_src }}</td>
+                                                    <td>{{ game.attendees }}</td>
+                                                    <td>
+                                                        <a href="/admin/game/{{ game.id }}">
+                                                            <button type="button" class="btn btn-info btn-circle"><i class="fa fa-edit"></i></button>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <!-- end of accordion -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 {% endblock content %}
