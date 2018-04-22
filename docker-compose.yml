@@ -15,7 +15,7 @@ services:
     build: .
     command: python manage.py web -r
     volumes:
-      - .:/opt/protector
+      - .:/opt/referee
     ports:
       - 8686:8686
     depends_on:
